@@ -1,0 +1,45 @@
+stages:
+    - check_elig
+    - validate_tests
+    - validate_progs
+    - submit
+
+check_submitter_eligibility:
+    stage: check_elig
+    only:
+        - master
+    tags:
+        - "swen90006-tourney"
+    script:
+        - python3 ~/swen_tourney/frontend.py check_eligibility $(realpath $(pwd))
+    allow_failure: false
+
+validate_tests:
+    stage: validate_tests
+    only:
+        - master
+    tags:
+        - "swen90006-tourney"
+    script:
+        - python3 ~/swen_tourney/frontend.py validate_tests $(realpath $(pwd))
+    allow_failure: false
+
+validate_progs:
+    stage: validate_progs
+    only:
+        - master
+    tags:
+        - "swen90006-tourney"
+    script:
+        - python3 ~/swen_tourney/frontend.py validate_progs $(realpath $(pwd))
+    allow_failure: false
+
+submit:
+    stage: submit
+    only:
+        - master
+    tags:
+        - "swen90006-tourney"
+    script:
+        - python3 ~/swen_tourney/frontend.py submit $(realpath $(pwd))
+    allow_failure: false
