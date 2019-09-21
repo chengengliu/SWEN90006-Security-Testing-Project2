@@ -413,7 +413,7 @@ static int execute(void){
     /* blank line */
     return 0;
   }
-    
+  // If this is the 'get' action, check if the input arguments are legal.
   if (strcmp(toks[0],INSTRUCTION_GET) == 0){
     if (numToks != 2){
       debug_printf("Expected 1 argument to %s instruction but instead found %u\n",INSTRUCTION_GET,numToks-1);
