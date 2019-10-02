@@ -290,10 +290,9 @@ nodeptr_list_t list_dequeue(nodeptr_list_t lst, const node_t **out){
   }
 
   if (lst.last == lst.head){
-    lst.last = NULL;
     free(lst.head);
     lst.head = NULL;
-    
+    lst.last = NULL;
   }else{
     nodeptr_list_elem_t *ret = lst.last->prev;
     free(lst.last);
