@@ -18,6 +18,13 @@ public class Fuzzer {
     private final static int MAX_LINES = 1024;
     private final static int MAX_INSTRUCTION_LENGTH = 1022; 
     private static Instruction[] INSTRUCTIONS = Instruction.values();
+
+    private final static int PUT = 0;
+    private final static int GET = 1;
+    private final static int REM = 2;
+    private final static int SAVE = 3;
+    private final static int LIST = 4;
+    private final static int MASTERPW = 5;
     
     public static void main(String[] args) throws IOException {
         System.out.println(Instruction.getBNF());
@@ -56,19 +63,28 @@ public class Fuzzer {
 
             System.out.println(INSTRUCTIONS);
             System.out.println(INSTRUCTIONS[0]);
-            int i =0;
-            while(i<10){
-              int temp=generateRandomInt(0, 5);
-              // System.out.println(generateRandomInt(0, 6));
-              // System.out.println(INSTRUCTIONS[temp]);
-              String inst = INSTRUCTIONS[temp].getOpcode();
-              System.out.println(inst+" abc "+"hasd "+"asd");
-              
-              i++;
+            int numberLines = 0, tempInsSeed = 0, numberStrings = 0; 
+            
+            while(numberLines<1022){
+              tempInsSeed=generateRandomInt(0, 5);
+
+              String inst = INSTRUCTIONS[tempInsSeed].getOpcode();  
+              switch (tempInsSeed){
+                case PUT:
+                  numberStrings = 3; 
+                case GET:
+                  numberStrings = 1;
+                case REM:
+                  numberStrings = 1;
+                case SAVE:
+                  numberStrings = 2;
+                case LIST:
+                  numberStrings = 0;
+                case MASTERPW:
+                  numberStrings = 1;
+              }            
+              numberLines++;
             }
-            // while(commandNum < MAX_LINES/2){
-              
-            // }
             
         }catch (Exception e){
             e.printStackTrace(System.err);
