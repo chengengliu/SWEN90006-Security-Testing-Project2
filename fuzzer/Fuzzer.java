@@ -18,8 +18,8 @@ public class Fuzzer {
 
 	private static final String OUTPUT_FILE = "fuzz.txt";
 	private static final String STATUS_FILE = "status.txt";
-	private static int commandNum = 0;
 
+	private static final int RANDOM_SEED = 10;
 	private final static int MAX_LINES = 1024;
 	private final static int MAX_INSTRUCTION_LENGTH = 1022;
 	private final static int INS_LENGTH = 3;
@@ -32,46 +32,34 @@ public class Fuzzer {
 	private static PrintWriter pw = null;
 	private static Instruction[] INSTRUCTIONS = Instruction.values();
 
-//	private final static int PUT = 0;
-//	private final static int GET = 1;
-//	private final static int REM = 2;
-//	private final static int SAVE = 3;
-//	private final static int LIST = 4;
-//	private final static int MASTERPW = 5;
-
 	public static void main(String[] args) throws IOException {
 
-		ArrayList<String> container = new ArrayList<String>();
+		ArrayList<String> shuffleContainer = new ArrayList<String>();
 
 		System.out.println(Instruction.getBNF());
-		System.out.println(generateRandomInt(1, PUT_MAX_INPUT));
-		System.out.println("random string: " + generateRandomString(20));
 
-//		FileOutputStream out = null;
-//		PrintWriter pw = null;
+		Iterator<String> it = null;
 
 		try {
 			out = new FileOutputStream(OUTPUT_FILE);
 			pw = new PrintWriter(out);
 
+			it = insertOrderedInstructions(1).iterator();
+			write(it);
 
 			ArrayList<String> minMaxList = insertMinMaxInstructions();
-			ArrayList<String> randomList = insertRandomInstructions(10);
+			ArrayList<String> randomList = insertRandomInstructions(RANDOM_SEED);
 
-			container.addAll(minMaxList);
-			container.addAll(randomList);
+			shuffleContainer.addAll(minMaxList);
+			shuffleContainer.addAll(randomList);
+			shuffleContainer.addAll(insertSamePut(1));
+			shuffleContainer.addAll(generateRandomPut(500));
+			shuffleContainer.addAll(generateRandomGetOrRem("get", 20));
 
-			Collections.shuffle(container); // randomize these inputs
+			Collections.shuffle(shuffleContainer); // randomize these inputs
 
-			Iterator<String> it = container.iterator();
-
-			while (it.hasNext())
-				pw.println(it.next());
-
-//			int numberLines = 0;
-//			while (numberLines < MAX_LINES - 1) {
-//
-//			}
+			it = shuffleContainer.iterator();
+			write(it);
 
 			/* "list" in the end */
 			pw.println("list");
@@ -89,9 +77,14 @@ public class Fuzzer {
 		}
 
 	}
-	
-	
 
+	/**
+	 * Produce a random integer in [min, max]
+	 * 
+	 * @param min left bound
+	 * @param max right bound
+	 * @return random integer
+	 */
 	private static int generateRandomInt(int min, int max) {
 		return ThreadLocalRandom.current().nextInt(min, max + 1);
 	}
@@ -125,6 +118,98 @@ public class Fuzzer {
 	}
 
 	/**
+	 * Insert additional seed times same PUT inputs
+	 * @param seed how many times to insert. seed=1 means there are 2 same puts in total.
+	 * @return
+	 */
+	private static ArrayList<String> insertSamePut(int seed) {
+
+		int count = 0;
+		ArrayList<String> list = new ArrayList<String>();
+		String put = generateRandomPut();
+		
+		System.out.println("Same Put: " + put);
+		
+		list.add(put);
+		while (count < seed) {
+			list.add(put);
+			count++;
+		}
+
+		return list;
+	}
+
+	// ##### Is this necessary #####
+	/**
+	 * Produce ordered instructions, e.g get->rem->put, etc. with random string
+	 * length
+	 * 
+	 * @param seed how many instructions to produce
+	 * @return list of No.seed inputs
+	 */
+	private static ArrayList<String> insertOrderedInstructions(int seed) {
+
+		int count = 0;
+		ArrayList<String> list = new ArrayList<String>();
+
+		while (count < seed) {
+			// get -> rem -> put
+			list.add(generateRandomGetOrRem("get"));
+			list.add(generateRandomGetOrRem("rem"));
+			list.add(generateRandomPut());
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// get -> put -> rem
+			list.add(generateRandomGetOrRem("get"));
+			list.add(generateRandomPut());
+			list.add(generateRandomGetOrRem("rem"));
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// rem -> get -> put
+			list.add(generateRandomGetOrRem("rem"));
+			list.add(generateRandomGetOrRem("get"));
+			list.add(generateRandomPut());
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// rem -> put -> get
+			list.add(generateRandomGetOrRem("rem"));
+			list.add(generateRandomPut());
+			list.add(generateRandomGetOrRem("get"));
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// put -> rem -> get
+			list.add(generateRandomPut());
+			list.add(generateRandomGetOrRem("rem"));
+			list.add(generateRandomGetOrRem("get"));
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// put -> get -> rem
+			list.add(generateRandomPut());
+			list.add(generateRandomGetOrRem("get"));
+			list.add(generateRandomGetOrRem("rem"));
+
+			count++;
+		}
+
+		return list;
+	}
+
+	/**
 	 * 
 	 * Randomly produce get/rem/put instructions with random string length
 	 * 
@@ -138,36 +223,90 @@ public class Fuzzer {
 		ArrayList<String> list = new ArrayList<String>();
 
 		while (count < seed) {
-			System.out.println("count= " + count);
-
-			String randomString = "";
 			String output = "";
-			int randomLen = 0;
 			ins = generateRamdomInstruction();
 
 			switch (ins) {
 			case GET:
-				randomLen = generateRandomInt(1, GET_REM_MAX_INPUT);
-				output = ins.getOpcode() + " " + generateRandomString(randomLen);
-				System.out.println(output);
+				output = generateRandomGetOrRem("get");
 				list.add(output);
 				break;
 			case REM:
-				randomLen = generateRandomInt(1, GET_REM_MAX_INPUT);
-				output = ins.getOpcode() + " " + generateRandomString(randomLen);
-				System.out.println(output);
+				output = generateRandomGetOrRem("rem");
 				list.add(output);
 				break;
 			case PUT:
-				randomLen = generateRandomInt(1, GET_REM_MAX_INPUT - 2 * WHITE_SPACE); // 1018 - 2*1
-				randomString = generateRandomString(randomLen);
-				output = ins.getOpcode() + " " + randomSplit(randomString);
-				System.out.println(output);
+				output = generateRandomPut();
 				list.add(output);
 				break;
 			default:
 				list.add("list"); // should never happen
 			}
+			count++;
+		}
+
+		return list;
+	}
+
+	/**
+	 * Randomly produce a valid PUT input
+	 * 
+	 * @return put input
+	 */
+	private static String generateRandomPut() {
+
+		int randomLen = generateRandomInt(1, GET_REM_MAX_INPUT - 2 * WHITE_SPACE); // 1018 - 2*1
+		String randomString = generateRandomString(randomLen);
+		String output = "put " + randomSplit(randomString);
+
+		return output;
+	}
+	
+	/**
+	 * Randomly produce seed times valid PUT input
+	 * @param seed 
+	 * @return list
+	 */
+	private static ArrayList<String> generateRandomPut(int seed) {
+		
+		int count = 0;
+		ArrayList<String> list = new ArrayList<String>();
+
+		while (count < seed) {
+			list.add(generateRandomPut());
+			count++;
+		}
+
+		return list;
+	}
+
+	/**
+	 * Randomly produce a valid GET or REM input
+	 * 
+	 * @param prefix
+	 * @return get or rem input
+	 */
+	private static String generateRandomGetOrRem(String prefix) {
+
+		int randomLen = generateRandomInt(1, GET_REM_MAX_INPUT);
+		String output = prefix + " " + generateRandomString(randomLen);
+
+		return output;
+	}
+	
+	/**
+	 * Randomly produce seed times valid GET or REM input
+	 * 
+	 * @param prefix
+	 * @return list of get or rem input
+	 */
+	private static ArrayList<String> generateRandomGetOrRem(String prefix, int seed) {
+
+		int count = 0;
+		ArrayList<String> list = new ArrayList<String>();
+
+		while (count < seed) {
+			list.add(generateRandomGetOrRem(prefix));
 			count++;
 		}
 
@@ -269,6 +408,9 @@ public class Fuzzer {
 		return generatedString;
 	}
 
-//	private static String
+	private static void write(Iterator<String> it) {
+		while (it.hasNext())
+			pw.println(it.next());
+	}
 
 }
