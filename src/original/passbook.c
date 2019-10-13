@@ -175,7 +175,7 @@ static node_t * rem(node_t *p, const char *url){
       node_t * left = p->left;
       node_t * const right = p->right;
       left = node_insert(left,right);
-      node_free(p);
+      node_free(p);    // <-------------------------------当rem掉已存在的url时才触发
       if (pptr != NULL){
         *pptr = left;
         return start;
