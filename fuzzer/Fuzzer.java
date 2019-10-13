@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
@@ -125,6 +126,7 @@ public class Fuzzer {
 			case 4:
 				// only 1 line of instruction
 				pw.println(insertRandomInstructions(1).get(0));
+				break;
 			case 5:
 				// 1024 lines of instructions
 				it = insertRandomInstructions(MAX_LINES).iterator();
