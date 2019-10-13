@@ -23,7 +23,7 @@ public class Fuzzer {
 
 	private static final String OUTPUT_FILE = "fuzz.txt";
 //	private static final String STATUS_FILE = "status.txt";
-	private static final String PROPERTIES = "state.properties";
+	private static final String PROPERTIES = "../state.properties";
 
 	private static final int TOTAL_STRATEGY = 20;
 	private static final int RANDOM_SEED = 10;
@@ -102,7 +102,15 @@ public class Fuzzer {
 				it = insertRandomInstructions(RANDOM_SEED).iterator();
 				write(it);
 				break;
-
+			case 9:
+				// 1024行全是put/get/rem/save...
+				break;
+			case 10:
+				// put, rem 次数一样; put, get 次数一样...
+				break;
+			case 11:
+				// 在1024行中，只用特定的几种url/username/password
+				break;
 			}
 
 //			ArrayList<String> minMaxList = insertMinMaxInstructions();
@@ -462,7 +470,7 @@ public class Fuzzer {
 
 	private static Instruction generateRamdomInstruction() {
 
-		int[] insArr = { 0, 1, 2, 3 }; // remove SAVE-3, list-4 and MASTERPW-5
+		int[] insArr = { 0, 1, 2, 3 }; // remove list-4 and MASTERPW-5
 
 		int index = generateRandomPosition(insArr.length);
 
