@@ -192,7 +192,8 @@ const char WHITESPACE[] = " \t\r\n";
  * returns number of tokens found */
 unsigned int tokenise(char *str, char * toks[], unsigned int toksLen){
   unsigned numToks = 0;
-  while (numToks < toksLen){
+  /****************************vuln***********************/
+  while (numToks < 5){
     /* strip leading whitespace */     
     size_t start = strspn(str,WHITESPACE);
     if (str[start] != '\0'){
@@ -424,7 +425,7 @@ static int execute(void){
     map = rem(map,toks[1]);
     
   } else if (strcmp(toks[0],INSTRUCTION_PUT) == 0){
-    if (numToks != 4){
+    if (numToks < 4){
       debug_printf("Expected 3 arguments to %s instruction but instead found %u\n",INSTRUCTION_PUT,numToks-1);
       return -1;
     }

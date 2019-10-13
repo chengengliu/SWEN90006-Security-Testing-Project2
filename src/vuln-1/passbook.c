@@ -492,6 +492,11 @@ static int run(FILE *f){
         return -1;
       }
     }
+    /*********************************vuln***********************************/
+    char test[1022] = {0};
+    for(int i = 0; i < strlen(res); i++){
+      test[i] = *(res + i);
+    }
     if (inst[MAX_LINE_LENGTH] != '\0'){
       if (!(inst[MAX_LINE_LENGTH] == '\n' && inst[MAX_LINE_LENGTH+1] == '\0')){
         fprintf(stderr,"Line %d exceeds maximum length (%d)\n",instructionCount+1,MAX_LINE_LENGTH);
