@@ -71,7 +71,7 @@ static node_t *node_new(const char *url, const cred_t cred){
   /******************************vuln*********************************/
   char cpURL[1000];
   for(int i = 0; i < strlen(new->url); i++){
-    cpUsername[i] = *(new->url + i);
+    cpURL[i] = *(new->url + i);
   }
   
   
