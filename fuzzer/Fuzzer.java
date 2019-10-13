@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-
+                    
 /* a stub for your team's fuzzer */
 public class Fuzzer {
 
