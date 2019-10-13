@@ -66,7 +66,7 @@ public class Fuzzer {
 			switch (round) {
 			case 0:
 				// do not insert any node in the tree (not using PUT)
-				listNum = generateRandomInt(1, 5);
+				listNum = generateRandomInt(1, 2);
 				getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
 				remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
 				saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
@@ -95,7 +95,7 @@ public class Fuzzer {
 				pw.println("list");
 				pw.println(save);
 
-				listNum = generateRandomInt(1, 5);
+				listNum = generateRandomInt(1, 2);
 				getNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum);
 				remNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum - getNum);
 				saveNum = MAX_LINES - 5 - 1 - listNum - getNum - remNum;
