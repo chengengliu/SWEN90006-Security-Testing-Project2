@@ -219,7 +219,7 @@ public class Fuzzer {
 
 				int n = 0;
 				int remainLength = MAX_INSTRUCTION_LENGTH - INS_LENGTH - WHITE_SPACE * 3 - url.length();
-				while (n < 1010) {
+				while (n < 100) {
 					String temp = generateRandomString(generateRandomInt(2, remainLength));
 					shuffleContainer.add("put " + url + " " + randomSplit(temp, 1));
 					n++;
@@ -232,7 +232,7 @@ public class Fuzzer {
 				it = shuffleContainer.iterator();
 				write(it);
 
-				pw.println("list");
+//				pw.println("list");
 				pw.println(rem);
 				break; // valid
 			case 20:
