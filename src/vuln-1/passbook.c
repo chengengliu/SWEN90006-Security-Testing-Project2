@@ -41,7 +41,6 @@ typedef struct node {
   struct node *left;
   struct node *right;
 } node_t;
-
 static const node_t * lookup(const node_t *p, const char *url){
   while (p != NULL){
     int ret = strcmp(url,p->url);
