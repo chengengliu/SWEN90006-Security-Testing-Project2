@@ -39,7 +39,7 @@ public class Fuzzer {
 	private static FileOutputStream out = null;
 	private static PrintWriter pw = null;
 	private static Instruction[] INSTRUCTIONS = Instruction.values();
-
+  
 	public static void main(String[] args) throws IOException {
 
 		ArrayList<String> shuffleContainer = new ArrayList<String>();
