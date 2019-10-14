@@ -25,7 +25,7 @@ public class Fuzzer {
 //	private static final String STATUS_FILE = "status.txt";
 	private static final String PROPERTIES = "../state.properties";
 
-	private static final int TOTAL_STRATEGY = 3;
+	private static final int TOTAL_STRATEGY = 1;
 	private static final int RANDOM_SEED = 10;
 	private static final int MAX_LINES = 1024;
 	private static final int MAX_INSTRUCTION_LENGTH = 1022;
@@ -65,53 +65,6 @@ public class Fuzzer {
 
 			switch (round) {
 				case 0:
-					// do not insert any node in the tree (not using PUT)
-					listNum = generateRandomInt(1, 2);
-					getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
-					remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
-					saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
-	
-	//				shuffleContainer.addAll(insertLists(listNum));
-					shuffleContainer.addAll(generateInstructions("get", getNum));
-					shuffleContainer.addAll(generateInstructions("rem", remNum));
-					shuffleContainer.addAll(generateInstructions("save", saveNum));
-	
-					Collections.shuffle(shuffleContainer);
-					it = shuffleContainer.iterator();
-					write(it);
-					// invalid:
-					break;
-	
-				case 1:
-					// only insert one node in the tree (put once)
-					put = generateInstructions("put", 1).get(0);
-					get = "get " + getURL(put);
-					rem = "rem " + getURL(put);
-					save = generateInstructions("save", 1).get(0);
-	
-					pw.println(put);
-					pw.println(get);
-					pw.println(rem);
-					pw.println("list");
-					pw.println(save);
-	
-					listNum = generateRandomInt(1, 2);
-					getNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum);
-					remNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum - getNum);
-					saveNum = MAX_LINES - 5 - 1 - listNum - getNum - remNum;
-	
-	//				shuffleContainer.addAll(insertLists(listNum));
-					shuffleContainer.addAll(generateInstructions("get", getNum));
-					shuffleContainer.addAll(generateInstructions("rem", remNum));
-					shuffleContainer.addAll(generateInstructions("save", saveNum));
-	
-					Collections.shuffle(shuffleContainer);
-					it = shuffleContainer.iterator();
-					write(it);
-	
-					pw.println(insertLongInstructions()); // invalid: long instruction > 1022
-					break;
-				case 2:
 					// min & max inputs
 					shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9));
 					shuffleContainer.addAll(insertMinMaxInstructions());
