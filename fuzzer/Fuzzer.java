@@ -280,14 +280,19 @@ public class Fuzzer {
       case 23: 
         // invalid number of arguments:
         // invalid: put with 4(or more) arguments
+        // TODO: 我不知道这个split值设置的这么大好不好。。或者说只需要稍微多几个就行？
         numOfArg = generateRandomInt(4, 1022);
         invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-numOfArg, numOfArg-1, "put");
         pw.println(invalidString);
         break;
       case 24: 
-      // TODO: 新增加invalid: 测随机指令，比如abc， bac...etc. 
+        // TODO: 新增加invalid: 测随机指令，比如abc， bac...etc, 以及合法split。
         // invalid random instructions that are not valid. i.e, ['abc'] instead of ['put']. 
-        // String invalidIntruction = generateRandomString();
+        // Length of the random instruction is equal to the length of splitting. 
+        int randomLen = generateRandomInt(2, 1022);
+        String invalidInstruction = generateRandomString(randomLen);
+        String invalidArgs = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-invalidInstruction.length()-randomLen, randomLen-1, invalidInstruction);
+        pw.println(invalidArgs);
       }
 
 			/* update state */
