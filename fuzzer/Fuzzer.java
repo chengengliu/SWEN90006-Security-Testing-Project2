@@ -25,7 +25,7 @@ public class Fuzzer {
 	// private static final String STATUS_FILE = "status.txt";
 	private static final String PROPERTIES = "../state.properties";
 
-	private static final int TOTAL_STRATEGY = 6;
+	private static final int TOTAL_STRATEGY = 23;
 	private static final int RANDOM_SEED = 10;
 	private static final int MAX_LINES = 1024;
 	private static final int MAX_INSTRUCTION_LENGTH = 1022;
@@ -57,7 +57,10 @@ public class Fuzzer {
 		String get = "";
 		String put = "";
 		String rem = "";
-		String save = "";
+    String save = "";
+    
+    String invalidString = "";
+    int numOfArg = 0;
 
 		try {
 			out = new FileOutputStream(OUTPUT_FILE);
@@ -79,7 +82,9 @@ public class Fuzzer {
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
 				write(it);
-				// invalid:
+        // invalid: get with zero input argument. 
+        invalidString = generateInvalidInstructions(0, 0, "get");
+        pw.println(invalidString);
 				break;
 
 			case 1:
@@ -109,22 +114,186 @@ public class Fuzzer {
 				it = shuffleContainer.iterator();
 				write(it);
 
-				pw.println(insertLongInstructions()); // invalid: long instruction > 1022
+        pw.println(insertLongInstructions()); // invalid: long instruction > 1022        
 				break;
 			case 2:
 				// 0 line of instruction (empty file)
 				// do nothing
 				break;
-			case 3:
+      case 3:
+        // TODO: 这个地方有问题吧？？为什么是MAX_LINES-1-9?
 				// min & max inputs
 				shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9 - 1));
 				shuffleContainer.addAll(insertMinMaxInstructions());
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
+        write(it);
+        
+        // invalid: get with two input arguments. (maybe later randomnise and generate two or more input arguments? )
+        numOfArg = generateRandomInt(2, 1022);
+        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-numOfArg, numOfArg-1,"get"); 
+        // minus three chars of instruction, 2 whitespaec. 
+        pw.println(invalidString);
+        break; // invalid: insert 1025 lines of file
+        
+			case 4:
+				// only 1 line of instruction
+				pw.println(insertRandomInstructions(1).get(0));
+				break;
+			case 5:
+				// 1024 lines of instructions
+				it = insertRandomInstructions(MAX_LINES).iterator();
 				write(it);
-				pw.println("put a b c d"); // insert an invalid instructions to test
-				break; // invalid: insert 1025 lines of file
-			}
+				break;
+			case 6:
+				// insert same instructions random times
+				putNum = generateRandomInt(1, MAX_LINES - 1);
+				getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
+				saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
+
+				shuffleContainer.addAll(generateInstructions("put", putNum));
+				shuffleContainer.addAll(generateInstructions("get", getNum));
+				shuffleContainer.addAll(generateInstructions("rem", remNum));
+				shuffleContainer.addAll(generateInstructions("save", saveNum));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+        write(it); 
+        // invalid: rem with 0 input argument. 
+        invalidString = generateInvalidInstructions(0,0,"rem");
+        pw.println(invalidString);
+				break;
+			case 7:
+				// 1024 lines of PUT
+				it = generateInstructions("put", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 8:
+				// 1024 lines of GET
+				it = generateInstructions("get", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 9:
+				// 1024 lines of REM
+				it = generateInstructions("rem", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 10:
+				// 1024 lines of SAVE
+				it = generateInstructions("save", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 11:
+				// 1024 lines of LIST
+				it = generateInstructions("save", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 12:
+				// PUT, REM same times
+				shuffleContainer.addAll(generateInstructions("put", MAX_LINES / 2));
+				shuffleContainer.addAll(generateInstructions("rem", MAX_LINES / 2));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				break;
+			case 13:
+				// PUT, GET same times
+				shuffleContainer.addAll(generateInstructions("put", MAX_LINES / 2));
+				shuffleContainer.addAll(generateInstructions("get", MAX_LINES / 2));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				break;
+			case 14:
+				// REM, GET same times
+				shuffleContainer.addAll(generateInstructions("rem", MAX_LINES / 2));
+				shuffleContainer.addAll(generateInstructions("get", MAX_LINES / 2));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				break;
+			case 15:
+				// REM, GET, PUT same times
+				shuffleContainer.addAll(generateInstructions("rem", (MAX_LINES - 1) / 3));
+				shuffleContainer.addAll(generateInstructions("get", (MAX_LINES - 1) / 3));
+				shuffleContainer.addAll(generateInstructions("put", (MAX_LINES - 1) / 3));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+        write(it); 
+        // invalid: rem with two (or more) instructions. 
+        numOfArg = generateRandomInt(2, 1022);
+        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH- 3-numOfArg, numOfArg-1, "rem");
+        pw.println(invalidString);
+				break;
+			case 16:
+				// same URL, different username/password
+				String url = getURL(generateInstructions("put", 1).get(0));
+
+				get = "get " + url;
+				rem = "rem " + url;
+
+				int n = 0;
+				int remainLength = MAX_INSTRUCTION_LENGTH - INS_LENGTH - WHITE_SPACE * 3 - url.length();
+				while (n < 50) {
+					String temp = generateRandomString(generateRandomInt(2, remainLength));
+					shuffleContainer.add("put " + url + " " + randomSplit(temp, 1));
+					n++;
+				}
+				shuffleContainer.add(get);
+				shuffleContainer.add(get);
+				shuffleContainer.add(get);
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+
+//				pw.println("list");
+				pw.println(rem);
+				break; // valid
+			case 20:
+				// ordered instructions
+				it = insertOrderedInstructions(1).iterator();
+				write(it);
+        // invalid: put with 0 argument
+        invalidString = generateInvalidInstructions(0,0,"put");
+        pw.println(invalidString);
+				break;
+			case 21:
+				// random instructions
+				it = insertRandomInstructions(MAX_LINES - 1).iterator();
+        write(it);
+        // invalid: put with 2 arguments.
+        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-2, 1, "put");
+        pw.println(invalidString);
+        break; 
+      case 22:
+        // invalid number of arguments: 
+        // invalid: put with 1 argument.
+        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3-1, 0, "put");
+        pw.println(invalidString);
+        break;
+      case 23: 
+        // invalid number of arguments:
+        // invalid: put with 4(or more) arguments
+        // TODO: 我不知道这个split值设置的这么大好不好。。或者说只需要稍微多几个就行？
+        numOfArg = generateRandomInt(4, 1022);
+        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-numOfArg, numOfArg-1, "put");
+        pw.println(invalidString);
+        break;
+      case 24: 
+        // TODO: 新增加invalid: 测随机指令，比如abc， bac...etc, 以及合法split。
+        // invalid random instructions that are not valid. i.e, ['abc'] instead of ['put']. 
+        // Length of the random instruction is equal to the length of splitting. 
+        int randomLen = generateRandomInt(2, 1022);
+        String invalidInstruction = generateRandomString(randomLen);
+        String invalidArgs = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-invalidInstruction.length()-randomLen, randomLen-1, invalidInstruction);
+        pw.println(invalidArgs);
+      }
 
 			/* update state */
 			writeProperty(PROPERTIES, "state", round + 1);
@@ -141,7 +310,13 @@ public class Fuzzer {
 			}
 		}
 
-	}
+  }
+  private static String generateInvalidInstructions(int seed, int intervals, String instruction){
+    String randomString = generateRandomString(seed);
+    String output = instruction;
+    output = output + " "+randomSplit(randomString, intervals);
+    return output;
+  }
 
 	/**
 	 * Produce a random integer in [min, max]
@@ -287,7 +462,7 @@ public class Fuzzer {
 	 * @param seed how many instructions to produce
 	 * @return list of No.seed inputs
 	 */
-	private static ArrayList<String> insertRandomInstructions(int seed) {
+	public static ArrayList<String> insertRandomInstructions(int seed) {
 
 		int count = 0;
 		Instruction ins;
@@ -508,7 +683,9 @@ public class Fuzzer {
 
 		int leftLimit = 33; // letter '!'
 		int rightLimit = 126; // letter '~'
-
+    if (len == 0){
+      return "";
+    }
 		Random random = new Random();
 		StringBuilder buffer = new StringBuilder(len);
 
