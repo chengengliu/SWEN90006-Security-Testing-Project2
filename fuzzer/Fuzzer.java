@@ -246,7 +246,9 @@ public class Fuzzer {
 				it = insertRandomInstructions(MAX_LINES - 1).iterator();
 				write(it);
 				break; // invalid
-
+      case 22: 
+        // Generate invalid number of arguments. 
+        // argument number that is 
 			}
 
 			/* update state */
