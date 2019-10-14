@@ -72,11 +72,12 @@ public class Fuzzer {
 					// Collections.shuffle(shuffleContainer);
 					// it = shuffleContainer.iterator();
 					// write(it);
-					
+
 					// break; // invalid: insert 1025 lines of file
-								// only 1 line of instruction
-					pw.println(insertRandomInstructions(1).get(0));
-					break;
+				// 1024 lines of instructions
+				it = insertRandomInstructions(MAX_LINES).iterator();
+				write(it);
+				break;
 			}
 			
 			/* update state */
