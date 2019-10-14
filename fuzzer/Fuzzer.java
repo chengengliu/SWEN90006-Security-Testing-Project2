@@ -73,14 +73,9 @@ public class Fuzzer {
 					// it = shuffleContainer.iterator();
 					// write(it);
 					// break; // invalid: insert 1025 lines of file
-									// REM, GET, PUT same times
-				shuffleContainer.addAll(generateInstructions("rem", (MAX_LINES - 1) / 3));
-				shuffleContainer.addAll(generateInstructions("get", (MAX_LINES - 1) / 3));
-				shuffleContainer.addAll(generateInstructions("put", (MAX_LINES - 1) / 3));
-
-				Collections.shuffle(shuffleContainer);
-				it = shuffleContainer.iterator();
-				write(it); // invalid:
+								// only 1 line of instruction
+					pw.println(insertRandomInstructions(1).get(0));
+					break;
 			}
 			
 			/* update state */
