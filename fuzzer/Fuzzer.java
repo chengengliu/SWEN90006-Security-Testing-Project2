@@ -114,6 +114,7 @@ public class Fuzzer {
 				case 2:
 					// 0 line of instruction (empty file)
 					// do nothing
+					pw.println(" ");
 					break;
 				case 3:
 					// min & max inputs
