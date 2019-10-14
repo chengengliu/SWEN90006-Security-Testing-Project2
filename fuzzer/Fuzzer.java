@@ -46,15 +46,18 @@ public class Fuzzer {
 
 		System.out.println(Instruction.getBNF());
 
-		System.out.println(generateInstructions("put", 1).get(0));
-		System.out.println(insertRandomInstructions(1).get(0));
-
 		Iterator<String> it = null;
 
 		int state = getValue(PROPERTIES, "state");
 		System.out.println("state=" + state);
 		int round = state % TOTAL_STRATEGY; // module makes sure it can wrap-around
 		System.out.println("round=" + round);
+
+		int putNum = 0, getNum = 0, remNum = 0, saveNum = 0, listNum = 0;
+		String get = "";
+		String put = "";
+		String rem = "";
+		String save = "";
 
 		try {
 			out = new FileOutputStream(OUTPUT_FILE);
@@ -166,19 +169,6 @@ public class Fuzzer {
 					write(it);
 					break;
 			}
-
-      
-
-
-
-			// // make sure the first .txt only has 1 input, second .txt only has 1024 inputs
-			// if (round != 0 || round != 1) {
-			// 	/* insert a "list" */
-			// 	pw.println("list");
-				
-			// 	/* insert an invalid input */
-			// 	pw.println(insertLongInstructions());	
-			// }
 			
 			/* update state */
 			writeProperty(PROPERTIES, "state", round + 1);
