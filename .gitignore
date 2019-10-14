@@ -56,3 +56,9 @@ dkms.conf
 .idea/
 .vscode/
 fuzzer/*.class
+tests/*
+*.txt
+bin/*
+/bin/*
+/bin/
+/bin
