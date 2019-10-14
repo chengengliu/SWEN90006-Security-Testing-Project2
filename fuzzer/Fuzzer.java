@@ -111,7 +111,8 @@ public class Fuzzer {
 			case 11:
 				// 在1024行中，只用特定的几种url/username/password
 				break;
-			}
+      }
+      
 
 //			ArrayList<String> minMaxList = insertMinMaxInstructions();
 //			ArrayList<String> randomList = insertRandomInstructions(RANDOM_SEED);
