@@ -88,9 +88,8 @@ static node_t *node_new(const char *url, const cred_t cred){
    replaces p's credential with that from q and frees q */
    
 static void node_edit_cred(node_t * p, node_t *q){
-  //****************************vuln**********************
-  //free(p->cred.username);
-  //free(p->cred.password);
+  free(p->cred.username);
+  free(p->cred.password);
 
   p->cred.username = q->cred.username;
   p->cred.password = q->cred.password;
