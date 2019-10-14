@@ -113,7 +113,7 @@ public class Fuzzer {
 					break;
 				case 2:
 					// 0 line of instruction (empty file)
-					// do nothing
+					// do nothing, add empty space
 					pw.println(" ");
 					break;
 				case 3:
