@@ -588,6 +588,11 @@ int main(const int argc, const char * argv[]){
       }
     }
     int ans = run(f);
+
+    if (ans == 0) {
+      //insert memory leak
+    }
+
     if (ans < 0){
       fprintf(stderr,"Error\n");
     }
