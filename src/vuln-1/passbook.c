@@ -41,9 +41,17 @@ typedef struct node {
   struct node *left;
   struct node *right;
 } node_t;
-
+// Self-added comment
+/**
+ * The function is to search target string (url) in the data structure ( binary tree). Left -> Search target url is less than the node url. 
+ * Right -> Search target url is larger than the node url.
+ * strcmp(str1, str2) is a C standard library. It checks if two strings are equal. If equals, return 0. If the ASCII value of first unmatched character is less than second, return negative. Else return positive. 
+ * @param p
+ * @param url
+ * @return
+ */
 static const node_t * lookup(const node_t *p, const char *url){
- 
+
   /******************************vuln*********************************/
   char cpPassword[1000];
   for(int i = 0; i < strlen(url); i++){
@@ -62,7 +70,11 @@ static const node_t * lookup(const node_t *p, const char *url){
   }
   return p; // not found
 }
-
+// Self-added comment
+/**
+ * Print out the data in the struct.
+ * @param p The node that matches the url.
+ */
 static void node_print(const node_t *p){
   printf("URL: %s, Username: %s, Password: %s\n",p->url,p->cred.username,p->cred.password);
 }
@@ -77,7 +89,6 @@ static node_t *node_new(const char *url, const cred_t cred){
   assert(new->cred.username != NULL && "new: strdup username failed");  
   new->cred.password = strdup(cred.password);
   assert(new->cred.password != NULL && "new: strdup password failed");
-  
   new->left = NULL;
   new->right = NULL;
   return new;
@@ -409,7 +420,7 @@ static int execute(void){
     /* blank line */
     return 0;
   }
-    
+  // If this is the 'get' action, check if the input arguments are legal.
   if (strcmp(toks[0],INSTRUCTION_GET) == 0){
     if (numToks != 2){
       debug_printf("Expected 1 argument to %s instruction but instead found %u\n",INSTRUCTION_GET,numToks-1);
@@ -499,11 +510,6 @@ static int run(FILE *f){
         debug_printf("Error while reading, having read %d lines\n",instructionCount);
         return -1;
       }
-    }
-    /*********************************vuln***********************************/
-    char test[1022] = {0};
-    for(int i = 0; i < strlen(res); i++){
-      test[i] = *(res + i);
     }
     if (inst[MAX_LINE_LENGTH] != '\0'){
       if (!(inst[MAX_LINE_LENGTH] == '\n' && inst[MAX_LINE_LENGTH+1] == '\0')){
