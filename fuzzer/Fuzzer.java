@@ -132,42 +132,6 @@ public class Fuzzer {
 					it = insertRandomInstructions(MAX_LINES).iterator();
 					write(it);
 					break;
-				case 6:
-					// insert same instructions random times
-					putNum = generateRandomInt(1, MAX_LINES - 1);
-					getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
-					remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
-					saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
-	
-					shuffleContainer.addAll(generateInstructions("put", putNum));
-					shuffleContainer.addAll(generateInstructions("get", getNum));
-					shuffleContainer.addAll(generateInstructions("rem", remNum));
-					shuffleContainer.addAll(generateInstructions("save", saveNum));
-	
-					Collections.shuffle(shuffleContainer);
-					it = shuffleContainer.iterator();
-					write(it); // invalid:
-					break;
-				case 7:
-					// 1024 lines of PUT
-					it = generateInstructions("put", MAX_LINES).iterator();
-					write(it);
-					break;
-				case 8:
-					// 1024 lines of GET
-					it = generateInstructions("get", MAX_LINES).iterator();
-					write(it);
-					break;
-				case 9:
-					// 1024 lines of REM
-					it = generateInstructions("rem", MAX_LINES).iterator();
-					write(it);
-					break;
-				case 10:
-					// 1024 lines of SAVE
-					it = generateInstructions("save", MAX_LINES).iterator();
-					write(it);
-					break;
 			}
 			
 			/* update state */
