@@ -117,22 +117,13 @@ public class Fuzzer {
 				break;
 			case 3:
 				// min & max inputs
-				shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9));
+				shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9 - 1));
 				shuffleContainer.addAll(insertMinMaxInstructions());
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
 				write(it);
 				pw.println("put a b c d"); // insert an invalid instructions
 				break; // invalid: insert 1025 lines of file
-			case 4:
-				// only 1 line of instruction
-				pw.println(insertRandomInstructions(1).get(0));
-				break;
-			case 5:
-				// 1024 lines of instructions
-				it = insertRandomInstructions(MAX_LINES).iterator();
-				write(it);
-				break;
 			}
 
 			/* update state */
