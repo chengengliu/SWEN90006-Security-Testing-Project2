@@ -66,6 +66,15 @@ static node_t *node_new(const char *url, const cred_t cred){
   assert(new != NULL && "new: malloc failed");
   new->url = strdup(url);
   assert(new->url != NULL && "new: strdup url failed");
+  
+  printf("the length of the url is: %d", strlen(new->url)); 
+  /******************************vuln*********************************/
+  char cpURL[1000];
+  for(int i = 0; i < strlen(new->url); i++){
+    cpURL[i] = *(new->url + i);
+  }
+  
+  
   new->cred.username = strdup(cred.username);
   assert(new->cred.username != NULL && "new: strdup username failed");  
   new->cred.password = strdup(cred.password);
