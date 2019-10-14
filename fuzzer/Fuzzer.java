@@ -122,7 +122,7 @@ public class Fuzzer {
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
 				write(it);
-				pw.println("put a b c d");
+				pw.println("put a b c d"); // insert an invalid instructions
 				break; // invalid: insert 1025 lines of file
 			case 4:
 				// only 1 line of instruction
