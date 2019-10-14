@@ -25,7 +25,7 @@ public class Fuzzer {
 //	private static final String STATUS_FILE = "status.txt";
 	private static final String PROPERTIES = "../state.properties";
 
-	private static final int TOTAL_STRATEGY = 6;
+	private static final int TOTAL_STRATEGY = 2;
 	private static final int RANDOM_SEED = 10;
 	private static final int MAX_LINES = 1024;
 	private static final int MAX_INSTRUCTION_LENGTH = 1022;
@@ -110,27 +110,6 @@ public class Fuzzer {
 					write(it);
 	
 					pw.println(insertLongInstructions()); // invalid: long instruction > 1022
-					break;
-				case 2:
-					// 0 line of instruction (empty file)
-					// do nothing
-					break;
-				case 3:
-					// min & max inputs
-					shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9));
-					shuffleContainer.addAll(insertMinMaxInstructions());
-					Collections.shuffle(shuffleContainer);
-					it = shuffleContainer.iterator();
-					write(it);
-					break; // invalid: insert 1025 lines of file
-				case 4:
-					// only 1 line of instruction
-					pw.println(insertRandomInstructions(1).get(0));
-					break;
-				case 5:
-					// 1024 lines of instructions
-					it = insertRandomInstructions(MAX_LINES).iterator();
-					write(it);
 					break;
 			}
 			
