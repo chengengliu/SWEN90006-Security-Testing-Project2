@@ -17,15 +17,15 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
-                    
+
 /* a stub for your team's fuzzer */
 public class Fuzzer {
 
 	private static final String OUTPUT_FILE = "fuzz.txt";
-//	private static final String STATUS_FILE = "status.txt";
+	// private static final String STATUS_FILE = "status.txt";
 	private static final String PROPERTIES = "../state.properties";
 
-	private static final int TOTAL_STRATEGY = 1;
+	private static final int TOTAL_STRATEGY = 6;
 	private static final int RANDOM_SEED = 10;
 	private static final int MAX_LINES = 1024;
 	private static final int MAX_INSTRUCTION_LENGTH = 1022;
@@ -39,7 +39,7 @@ public class Fuzzer {
 	private static FileOutputStream out = null;
 	private static PrintWriter pw = null;
 	private static Instruction[] INSTRUCTIONS = Instruction.values();
-  
+
 	public static void main(String[] args) throws IOException {
 
 		ArrayList<String> shuffleContainer = new ArrayList<String>();
@@ -64,25 +64,80 @@ public class Fuzzer {
 			pw = new PrintWriter(out);
 
 			switch (round) {
-				case 0:
-					// // test
-					// // min & max inputs
-					// // shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9));
-					// shuffleContainer.addAll(insertMinMaxInstructions());
-					// Collections.shuffle(shuffleContainer);
-					// it = shuffleContainer.iterator();
-					// write(it);
+			case 0:
+				// do not insert any node in the tree (not using PUT)
+				listNum = generateRandomInt(1, 2);
+				getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
+				saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
 
-					// break; // invalid: insert 1025 lines of file
+				// shuffleContainer.addAll(insertLists(listNum));
+				shuffleContainer.addAll(generateInstructions("get", getNum));
+				shuffleContainer.addAll(generateInstructions("rem", remNum));
+				shuffleContainer.addAll(generateInstructions("save", saveNum));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				// invalid:
+				break;
+
+			case 1:
+				// only insert one node in the tree (put once)
+				put = generateInstructions("put", 1).get(0);
+				get = "get " + getURL(put);
+				rem = "rem " + getURL(put);
+				save = generateInstructions("save", 1).get(0);
+
+				pw.println(put);
+				pw.println(get);
+				pw.println(rem);
+				pw.println("list");
+				pw.println(save);
+
+				listNum = generateRandomInt(1, 2);
+				getNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum - getNum);
+				saveNum = MAX_LINES - 5 - 1 - listNum - getNum - remNum;
+
+				// shuffleContainer.addAll(insertLists(listNum));
+				shuffleContainer.addAll(generateInstructions("get", getNum));
+				shuffleContainer.addAll(generateInstructions("rem", remNum));
+				shuffleContainer.addAll(generateInstructions("save", saveNum));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+
+				pw.println(insertLongInstructions()); // invalid: long instruction > 1022
+				break;
+			case 2:
+				// 0 line of instruction (empty file)
+				// do nothing
+				break;
+			case 3:
+				// min & max inputs
+				shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9));
+				shuffleContainer.addAll(insertMinMaxInstructions());
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				pw.println("put a b c d");
+				break; // invalid: insert 1025 lines of file
+			case 4:
+				// only 1 line of instruction
+				pw.println(insertRandomInstructions(1).get(0));
+				break;
+			case 5:
 				// 1024 lines of instructions
 				it = insertRandomInstructions(MAX_LINES).iterator();
 				write(it);
 				break;
 			}
-			
+
 			/* update state */
 			writeProperty(PROPERTIES, "state", round + 1);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace(System.err);
 			System.exit(1);
@@ -97,7 +152,7 @@ public class Fuzzer {
 
 	}
 
-		/**
+	/**
 	 * Produce a random integer in [min, max]
 	 * 
 	 * @param min left bound
@@ -107,10 +162,10 @@ public class Fuzzer {
 	private static int generateRandomInt(int min, int max) {
 		return ThreadLocalRandom.current().nextInt(min, max + 1);
 	}
-//
-//	public static String generateRandomStr(int seed) {
-//		return Character.toString((char) seed);
-//	}
+	//
+	// public static String generateRandomStr(int seed) {
+	// return Character.toString((char) seed);
+	// }
 
 	/**
 	 * Produce minimum and maximum length get/rem/put instructions with random
