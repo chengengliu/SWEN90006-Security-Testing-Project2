@@ -65,14 +65,22 @@ public class Fuzzer {
 
 			switch (round) {
 				case 0:
-					// test
-					// min & max inputs
-					// shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9));
-					shuffleContainer.addAll(insertMinMaxInstructions());
-					Collections.shuffle(shuffleContainer);
-					it = shuffleContainer.iterator();
-					write(it);
-					break; // invalid: insert 1025 lines of file
+					// // test
+					// // min & max inputs
+					// // shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9));
+					// shuffleContainer.addAll(insertMinMaxInstructions());
+					// Collections.shuffle(shuffleContainer);
+					// it = shuffleContainer.iterator();
+					// write(it);
+					// break; // invalid: insert 1025 lines of file
+									// REM, GET, PUT same times
+				shuffleContainer.addAll(generateInstructions("rem", (MAX_LINES - 1) / 3));
+				shuffleContainer.addAll(generateInstructions("get", (MAX_LINES - 1) / 3));
+				shuffleContainer.addAll(generateInstructions("put", (MAX_LINES - 1) / 3));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it); // invalid:
 			}
 			
 			/* update state */
