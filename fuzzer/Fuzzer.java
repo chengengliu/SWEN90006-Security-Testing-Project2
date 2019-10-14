@@ -60,6 +60,7 @@ public class Fuzzer {
     String save = "";
     
     String invalidString = "";
+    int numOfArg = 0;
 
 		try {
 			out = new FileOutputStream(OUTPUT_FILE);
@@ -129,7 +130,9 @@ public class Fuzzer {
         write(it);
         
         // invalid: get with two input arguments. (maybe later randomnise and generate two or more input arguments? )
-        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-2, 1, "get"); // minus three chars of instruction, 2 whitespaec. 
+        numOfArg = generateRandomInt(2, 1022);
+        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-numOfArg, numOfArg-1,"get"); 
+        // minus three chars of instruction, 2 whitespaec. 
         pw.println(invalidString);
         break; // invalid: insert 1025 lines of file
         
@@ -223,7 +226,8 @@ public class Fuzzer {
 				it = shuffleContainer.iterator();
         write(it); 
         // invalid: rem with two (or more) instructions. 
-        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH- 3-2, 1, "rem");
+        numOfArg = generateRandomInt(2, 1022);
+        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH- 3-numOfArg, numOfArg-1, "rem");
         pw.println(invalidString);
 				break;
 			case 16:
@@ -273,16 +277,17 @@ public class Fuzzer {
         invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3-1, 0, "put");
         pw.println(invalidString);
         break;
-      case 23: // TODO: 新增加invalid: 测随机指令，比如abc， bac...etc. 
+      case 23: 
         // invalid number of arguments:
         // invalid: put with 4(or more) arguments
-        int numOfArg = generateRandomInt(4, 1022);
+        numOfArg = generateRandomInt(4, 1022);
         invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-numOfArg, numOfArg-1, "put");
         pw.println(invalidString);
         break;
       case 24: 
+      // TODO: 新增加invalid: 测随机指令，比如abc， bac...etc. 
         // invalid random instructions that are not valid. i.e, ['abc'] instead of ['put']. 
-        String invalidIntruction = generateRandomString();
+        // String invalidIntruction = generateRandomString();
       }
 
 			/* update state */
@@ -452,7 +457,7 @@ public class Fuzzer {
 	 * @param seed how many instructions to produce
 	 * @return list of No.seed inputs
 	 */
-	private static ArrayList<String> insertRandomInstructions(int seed) {
+	public static ArrayList<String> insertRandomInstructions(int seed) {
 
 		int count = 0;
 		Instruction ins;
