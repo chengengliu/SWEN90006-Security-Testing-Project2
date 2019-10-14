@@ -65,6 +65,7 @@ public class Fuzzer {
 
 			switch (round) {
 				case 0:
+					// test
 					// min & max inputs
 					shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9));
 					shuffleContainer.addAll(insertMinMaxInstructions());
