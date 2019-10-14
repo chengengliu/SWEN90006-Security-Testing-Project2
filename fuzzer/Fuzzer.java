@@ -1,10 +1,21 @@
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Properties;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 <<<<<<< Updated upstream
 =======
@@ -291,226 +302,692 @@ public class Fuzzer {
 		ArrayList<String> list = new ArrayList<String>();
 >>>>>>> Stashed changes
 
-
 /* a stub for your team's fuzzer */
 public class Fuzzer {
 
-    private static final String OUTPUT_FILE = "fuzz.txt";
-    private static int commandNum = 0;
-    private static final String STATUS_FILE = "status.txt";
+	private static final String OUTPUT_FILE = "fuzz.txt";
+//	private static final String STATUS_FILE = "status.txt";
+	private static final String PROPERTIES = "../state.properties";
 
-    private final static int MAX_LINES = 1024;
-    private final static int MAX_INSTRUCTION_LENGTH = 1022; 
-    private static Instruction[] INSTRUCTIONS = Instruction.values();
+	private static final int TOTAL_STRATEGY = 21;
+	private static final int RANDOM_SEED = 10;
+	private static final int MAX_LINES = 1024;
+	private static final int MAX_INSTRUCTION_LENGTH = 1022;
+	private static final int INS_LENGTH = 3;
+	private static final int WHITE_SPACE = 1;
+	private static final int MIN_INPUT = 1;
+	private static final int PUT_MAX_INPUT = MAX_INSTRUCTION_LENGTH - INS_LENGTH - WHITE_SPACE * 3 - 1 - 1;
+	private static final int SAVE_MAX_INPUT = MAX_INSTRUCTION_LENGTH - (INS_LENGTH + 1) - WHITE_SPACE * 2 - 1;
+	private static final int GET_REM_MAX_INPUT = MAX_INSTRUCTION_LENGTH - INS_LENGTH - WHITE_SPACE;
 
-    private final static int PUT = 0;
-    private final static int GET = 1;
-    private final static int REM = 2;
-    private final static int SAVE = 3;
-    private final static int LIST = 4;
-    private final static int MASTERPW = 5;
-    
-    public static void main(String[] args) throws IOException {
-        // System.out.println(Instruction.getBNF());
-        FileOutputStream out = null;
-        PrintWriter pw = null;
+	private static FileOutputStream out = null;
+	private static PrintWriter pw = null;
+	private static Instruction[] INSTRUCTIONS = Instruction.values();
 
-        Integer runtime; 
-        try {
-            out = new FileOutputStream(OUTPUT_FILE);
-            pw = new PrintWriter(out);
+	public static void main(String[] args) throws IOException {
 
-            //TODO: 这两行将来放到loop里，生成随机char。 
-            // int seed = generateRandomInt(0, 127);
-            // String ascii = generateRandomStr(seed);
+		ArrayList<String> shuffleContainer = new ArrayList<String>();
 
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream(STATUS_FILE), "utf-8"));
-            int status = Integer.parseInt(bufferedReader.readLine());
+		System.out.println(Instruction.getBNF());
 
+		Iterator<String> it = null;
 
+		int state = getValue(PROPERTIES, "state");
+		System.out.println("state=" + state);
+		int round = state % TOTAL_STRATEGY; // module makes sure it can wrap-around
+		System.out.println("round=" + round);
 
-            // pw.print("put ");
-            // for (int i =0; i < 1025; i++){
-            //   pw.print(i);
-            // }
-            
-            /* We just print one instruction.
-               Hint: you might want to make use of the instruction
-               grammar which is effectively encoded in Instruction.java */
-            // pw.println();
-            // pw.println("list");
-            // pw.println("put http://www.google.com");
+		int putNum = 0, getNum = 0, remNum = 0, saveNum = 0, listNum = 0;
+		String get = "";
+		String put = "";
+		String rem = "";
+		String save = "";
 
-            // pw.println();
+		try {
+			out = new FileOutputStream(OUTPUT_FILE);
+			pw = new PrintWriter(out);
 
+			switch (round) {
+			case 0:
+				// do not insert any node in the tree (not using PUT)
+				listNum = generateRandomInt(1, 2);
+				getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
+				saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
 
-            int numberLines = 0, tempInsSeed = 0, numberStrings = 0;
+				shuffleContainer.addAll(insertLists(listNum));
+				shuffleContainer.addAll(generateInstructions("get", getNum));
+				shuffleContainer.addAll(generateInstructions("rem", remNum));
+				shuffleContainer.addAll(generateInstructions("save", saveNum));
 
-            int lessOrMore = 0;
-            ArrayList <String[]>errorProneString = new ArrayList<String[]>();
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				// invalid:
+				break;
 
-            //TODO:Since the invalid inputs will be generated as the last line, the randominisation will be creatd outside of the main loop and generate the inputs for the last line. 
-            tempInsSeed=generateRandomInt(0, 5);
-            // System.out.println(tempInsSeed);
-            lessOrMore = generateRandomInt(0, 1);
-            boolean isLess = true; 
-            String inst = INSTRUCTIONS[tempInsSeed].getOpcode(); 
-            
-            if(lessOrMore ==0) isLess = false; 
-            tempInsSeed = 0;
-            switch (tempInsSeed){
-              case PUT:
-                System.out.println("PUT");
-                numberStrings = 3; 
-                if (isLess) errorProneString.add(genLessStrNum(PUT));
-                else System.out.println("else");
-                break;
-                // pw.write();
-              case GET:
-                System.out.println("GET");
-                numberStrings = 1;
-                errorProneString.add(genLessStrNum(GET));
-                break;
-              case REM:
-                System.out.println("REM");
-                numberStrings = 1;
-                errorProneString.add(genLessStrNum(REM));
-                break;
-              case LIST:
-                System.out.println("LIST");
-                numberStrings = 0;
-                break;
-              default:
-                break;
-            }            
+			case 1:
+				// only insert one node in the tree (put once)
+				put = generateInstructions("put", 1).get(0);
+				get = "get " + getURL(put);
+				rem = "rem " + getURL(put);
+				save = generateInstructions("save", 1).get(0);
 
-        }catch (Exception e){
-            e.printStackTrace(System.err);
-            System.exit(1);
-        }finally{
-            if (pw != null){
-                pw.flush();
-            }
-            if (out != null){
-                out.close();
-            }
-        }
+				pw.println(put);
+				pw.println(get);
+				pw.println(rem);
+				pw.println("list");
+				pw.println(save);
 
-    }
-    // Add some randominisation. 
-    
-    public static int generateRandomInt(int min, int max){
-      // nextInt(least, bound): bound will be exclusive so add 1. 
-      return ThreadLocalRandom.current().nextInt(min, max + 1);
-    }
-    public static String generateRandomStr(int seed){
-      return Character.toString((char) seed);
-    }
-    // TODO: Refactor code, reduce copy and paste. 
-    private static String[] genLessStrNum(int inst){
-      int tempNumArgs = 0;
+				listNum = generateRandomInt(1, 2);
+				getNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum - getNum);
+				saveNum = MAX_LINES - 5 - 1 - listNum - getNum - remNum;
 
-      switch (inst){
-        // Supposed to have three arguments. Generate 0 / 1 / 2 number of inputs. 
-        case PUT:
-          tempNumArgs = generateRandomInt(0, 2);
-          tempNumArgs = 2;
-          return splitRandomStrLess(tempNumArgs);
-        case GET:
-          tempNumArgs = 0;
-        case REM:
-          tempNumArgs = 0;
-          return splitRandomStrLess(tempNumArgs);
-      }
-      return null;
-    }
-    // Generate a random string from command. 
-    // Split the string randomly and it should be invalid args. 
-    private static String[] splitRandomStrLess(int numArg){
-      String tempString = "";
-      String[] output = new String[numArg+1];
-      
-      int randomSeed = 0, lenOfArgs = 0, maxLength = MAX_INSTRUCTION_LENGTH-numArg;
-      int splitIndex = 0;
-      while(lenOfArgs < maxLength){
-        randomSeed = generateRandomInt(33, 127);
-            // System.out.println(randomSeed);
-        tempString += generateRandomStr(randomSeed);
-        lenOfArgs ++;
-      }
-      System.out.println(tempString.length());
-      if(numArg ==0){
-        tempString = " ";
-        output[0] = tempString;
-        return output;
-      }
-      // else if(numArg == 1){
-      //   output[0] = tempString;
-      //   return output;
-      // }
-      else{
-        splitIndex = generateRandomInt(0, maxLength-1);
-        String sub = tempString.substring(0,splitIndex);
-        String remain = tempString.substring(splitIndex);
-        output[0] = sub;
-        output[1] = remain;
-        System.out.println(tempString);
-        System.out.println(sub);
-        System.out.println(remain);
+				shuffleContainer.addAll(insertLists(listNum));
+				shuffleContainer.addAll(generateInstructions("get", getNum));
+				shuffleContainer.addAll(generateInstructions("rem", remNum));
+				shuffleContainer.addAll(generateInstructions("save", saveNum));
 
-        System.out.println(splitMultipleStrings(numArg, tempString));
-        System.out.println("Full String: \n"+tempString);
-        // System.out.println(splitMultipleStrings(numArg, tempString));
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
 
+				pw.println(insertLongInstructions()); // invalid: long instruction > 1022
+				break;
+			case 2:
+				// 0 line of instruction (empty file)
+				// do nothing
+				break;
+			case 3:
+				// min & max inputs
+				shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9));
+				shuffleContainer.addAll(insertMinMaxInstructions());
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				break; // invalid: insert 1025 lines of file
+			case 4:
+				// only 1 line of instruction
+				pw.println(insertRandomInstructions(1).get(0));
+				break;
+			case 5:
+				// 1024 lines of instructions
+				it = insertRandomInstructions(MAX_LINES).iterator();
+				write(it);
+				break;
+			case 6:
+				// insert same instructions random times
+				putNum = generateRandomInt(1, MAX_LINES - 1);
+				getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
+				saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
 
-        return output;
-      }
-    }
-    private static String[] splitMultipleStrings(int numArgs, String input){
-      String tempString = "", sub = ""; 
-      // TODO: 这里有时候会越界？？
-      int splitIndex = generateRandomInt(0, MAX_INSTRUCTION_LENGTH-numArgs), tempSplit=0;
-      String[] output = new String[numArgs];
-      boolean isFirstArg = true;
-      System.out.println("New Method: ");
-      System.out.println(input.length());
-      for (int i =0; i < numArgs; i++){
-        if (isFirstArg){
-          tempString = input.substring(0,splitIndex);
-          output[i] = tempString;
-          // System.out.println(output[i]);
-          isFirstArg = false;
-          System.out.println(i+" Enter first one ");
-          continue;
-        }
-        tempSplit = splitIndex;
-        // New splitindex. 
-        splitIndex = generateRandomInt(tempSplit, MAX_INSTRUCTION_LENGTH-numArgs);
-        if(i == numArgs -1){
-          tempString = input.substring(tempSplit, MAX_INSTRUCTION_LENGTH-numArgs);
-          output[i] = tempString;
-          System.out.println(i+" Enter last one ");
-          break;
-        }
-        tempString = input.substring(tempSplit,splitIndex);
+				shuffleContainer.addAll(generateInstructions("put", putNum));
+				shuffleContainer.addAll(generateInstructions("get", getNum));
+				shuffleContainer.addAll(generateInstructions("rem", remNum));
+				shuffleContainer.addAll(generateInstructions("save", saveNum));
 
-        output[i+1] = tempString;
-        System.out.println(i+" Enter normal one ");
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it); // invalid:
+				break;
+			case 7:
+				// 1024 lines of PUT
+				it = generateInstructions("put", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 8:
+				// 1024 lines of GET
+				it = generateInstructions("get", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 9:
+				// 1024 lines of REM
+				it = generateInstructions("rem", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 10:
+				// 1024 lines of SAVE
+				it = generateInstructions("save", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 11:
+				// 1024 lines of LIST
+				it = generateInstructions("save", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 12:
+				// PUT, REM same times
+				shuffleContainer.addAll(generateInstructions("put", MAX_LINES / 2));
+				shuffleContainer.addAll(generateInstructions("rem", MAX_LINES / 2));
 
-        // System.out.println(i+":\n"+output[i]);
-      }
-      // Traverse full split string. For testing purpose: 
-      for (int i =0; i < numArgs; i++){
-        System.out.println(i+":\n"+output[i]);
-      } 
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				break;
+			case 13:
+				// PUT, GET same times
+				shuffleContainer.addAll(generateInstructions("put", MAX_LINES / 2));
+				shuffleContainer.addAll(generateInstructions("get", MAX_LINES / 2));
 
-      return output;
-    }
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				break;
+			case 14:
+				// REM, GET same times
+				shuffleContainer.addAll(generateInstructions("rem", MAX_LINES / 2));
+				shuffleContainer.addAll(generateInstructions("get", MAX_LINES / 2));
 
-    private static String[] getMoreStrNum(int inst){
-      
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+				break;
+			case 15:
+				// REM, GET, PUT same times
+				shuffleContainer.addAll(generateInstructions("rem", (MAX_LINES - 1) / 3));
+				shuffleContainer.addAll(generateInstructions("get", (MAX_LINES - 1) / 3));
+				shuffleContainer.addAll(generateInstructions("put", (MAX_LINES - 1) / 3));
 
-      return null;
-    }
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it); // invalid:
+				break;
+			case 16:
+				// same URL, different username/password
+				String url = getURL(generateInstructions("put", 1).get(0));
+
+				get = "get " + url;
+				rem = "rem " + url;
+
+				int n = 0;
+				int remainLength = MAX_INSTRUCTION_LENGTH - INS_LENGTH - WHITE_SPACE * 3 - url.length();
+				while (n < 50) {
+					String temp = generateRandomString(generateRandomInt(2, remainLength));
+					shuffleContainer.add("put " + url + " " + randomSplit(temp, 1));
+					n++;
+				}
+				shuffleContainer.add(get);
+				shuffleContainer.add(get);
+				shuffleContainer.add(get);
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+
+//				pw.println("list");
+				pw.println(rem);
+				break; // valid
+			case 20:
+				// ordered instructions
+				it = insertOrderedInstructions(1).iterator();
+				write(it);
+				// invalid:
+				break;
+			case 21:
+				// random instructions
+				it = insertRandomInstructions(MAX_LINES - 1).iterator();
+				write(it);
+				break; // invalid
+
+			}
+
+			/* update state */
+			writeProperty(PROPERTIES, "state", round + 1);
+
+		} catch (Exception e) {
+			e.printStackTrace(System.err);
+			System.exit(1);
+		} finally {
+			if (pw != null) {
+				pw.flush();
+			}
+			if (out != null) {
+				out.close();
+			}
+		}
+
+	}
+
+	/**
+	 * Produce a random integer in [min, max]
+	 * 
+	 * @param min left bound
+	 * @param max right bound
+	 * @return random integer
+	 */
+	private static int generateRandomInt(int min, int max) {
+		return ThreadLocalRandom.current().nextInt(min, max + 1);
+	}
+//
+//	public static String generateRandomStr(int seed) {
+//		return Character.toString((char) seed);
+//	}
+
+	/**
+	 * Produce minimum and maximum length get/rem/put instructions with random
+	 * string
+	 * 
+	 * @return list of the 9 inputs
+	 */
+	private static ArrayList<String> insertMinMaxInstructions() {
+
+		String getMin = "get " + generateRandomString(MIN_INPUT);
+		String getMax = "get " + generateRandomString(GET_REM_MAX_INPUT);
+		String remMin = "rem " + generateRandomString(MIN_INPUT);
+		String remMax = "rem " + generateRandomString(GET_REM_MAX_INPUT);
+		String put1 = "put " + generateRandomString(MIN_INPUT) + " " + generateRandomString(MIN_INPUT) + " "
+				+ generateRandomString(PUT_MAX_INPUT);
+		String put2 = "put " + generateRandomString(MIN_INPUT) + " " + generateRandomString(PUT_MAX_INPUT) + " "
+				+ generateRandomString(MIN_INPUT);
+		String put3 = "put " + generateRandomString(PUT_MAX_INPUT) + " " + generateRandomString(MIN_INPUT) + " "
+				+ generateRandomString(MIN_INPUT);
+		String save1 = "save " + generateRandomString(SAVE_MAX_INPUT) + " " + generateRandomString(MIN_INPUT);
+		String save2 = "save " + generateRandomString(MIN_INPUT) + " " + generateRandomString(SAVE_MAX_INPUT);
+
+		String[] instructions = { getMin, getMax, remMin, remMax, put1, put2, put3, save1, save2 };
+
+		return new ArrayList<String>(Arrays.asList(instructions));
+	}
+
+	/**
+	 * Insert additional seed times same prefix inputs
+	 * 
+	 * @param prefix specify which instruction (put, save, get, rem)
+	 * @param seed   how many times to insert. seed=1 means there are 2 same puts in
+	 *               total.
+	 * @return
+	 */
+	private static ArrayList<String> insertSameInstructions(String prefix, int seed) {
+
+		int count = 0;
+		ArrayList<String> list = new ArrayList<String>();
+		String ins = generateInstructions(prefix, 1).get(0);
+
+		System.out.println("Same: " + ins);
+
+		list.add(ins);
+		while (count < seed) {
+			list.add(ins);
+			count++;
+		}
+
+		return list;
+	}
+
+	// ##### Is this necessary #####
+	/**
+	 * Produce ordered instructions, e.g get->rem->put, etc. with random string
+	 * length
+	 * 
+	 * @param seed how many instructions to produce
+	 * @return list of No.seed inputs
+	 */
+	private static ArrayList<String> insertOrderedInstructions(int seed) {
+
+		int count = 0;
+		ArrayList<String> list = new ArrayList<String>();
+
+		while (count < seed) {
+			// get -> rem -> put
+			list.add(generateInstructions("get", 1).get(0));
+			list.add(generateInstructions("rem", 1).get(0));
+			list.add(generateInstructions("put", 1).get(0));
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// get -> put -> rem
+			list.add(generateInstructions("get", 1).get(0));
+			list.add(generateInstructions("put", 1).get(0));
+			list.add(generateInstructions("rem", 1).get(0));
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// rem -> get -> put
+			list.add(generateInstructions("rem", 1).get(0));
+			list.add(generateInstructions("get", 1).get(0));
+			list.add(generateInstructions("put", 1).get(0));
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// rem -> put -> get
+			list.add(generateInstructions("rem", 1).get(0));
+			list.add(generateInstructions("put", 1).get(0));
+			list.add(generateInstructions("get", 1).get(0));
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// put -> rem -> get
+			list.add(generateInstructions("put", 1).get(0));
+			list.add(generateInstructions("rem", 1).get(0));
+			list.add(generateInstructions("get", 1).get(0));
+
+			count++;
+		}
+		count = 0;
+		while (count < seed) {
+			// put -> get -> rem
+			list.add(generateInstructions("put", 1).get(0));
+			list.add(generateInstructions("get", 1).get(0));
+			list.add(generateInstructions("rem", 1).get(0));
+
+			count++;
+		}
+
+		return list;
+	}
+
+	/**
+	 * 
+	 * Randomly produce get/rem/put/save instructions with random string length in
+	 * seed times
+	 * 
+	 * @param seed how many instructions to produce
+	 * @return list of No.seed inputs
+	 */
+	private static ArrayList<String> insertRandomInstructions(int seed) {
+
+		int count = 0;
+		Instruction ins;
+		ArrayList<String> list = new ArrayList<String>();
+
+		while (count < seed) {
+			String output = "";
+			ins = generateRamdomInstruction();
+
+			switch (ins) {
+			case GET:
+				output = generateInstructions("get", 1).get(0);
+				list.add(output);
+				break;
+			case REM:
+				output = generateInstructions("rem", 1).get(0);
+				list.add(output);
+				break;
+			case PUT:
+				output = generateInstructions("put", 1).get(0);
+				list.add(output);
+				break;
+			case SAVE:
+				output = generateInstructions("save", 1).get(0);
+				list.add(output);
+				break;
+			default:
+				list.add("list"); // should never happen
+			}
+			count++;
+		}
+
+		return list;
+	}
+
+	/**
+	 * Randomly produce an invalid long input
+	 * 
+	 * @return
+	 */
+	private static String insertLongInstructions() {
+
+		String get = "get " + generateRandomString(MAX_LINES * 2);
+		String rem = "rem " + generateRandomString(MAX_LINES * 2);
+		String put1 = "put " + generateRandomString(MAX_LINES * 2) + " " + generateRandomString(MIN_INPUT) + " "
+				+ generateRandomString(PUT_MAX_INPUT);
+		String put2 = "put " + generateRandomString(MIN_INPUT) + " " + generateRandomString(MAX_LINES * 2) + " "
+				+ generateRandomString(MIN_INPUT);
+		String put3 = "put " + generateRandomString(MAX_LINES * 2) + " " + generateRandomString(MIN_INPUT) + " "
+				+ generateRandomString(MIN_INPUT);
+		String save1 = "save " + generateRandomString(MAX_LINES * 2) + " " + generateRandomString(MIN_INPUT);
+		String save2 = "save " + generateRandomString(MIN_INPUT) + " " + generateRandomString(MAX_LINES * 2);
+		String masterpw = "masterpw " + generateRandomString(MAX_LINES * 2);
+
+		String[] instructions = { get, rem, put1, put2, put3, save1, save2, masterpw };
+
+		return instructions[generateRandomPosition(instructions.length)];
+	}
+
+	/**
+	 * Randomly produce a specific instruction in seed times
+	 * 
+	 * @param prefix specify which instruction to produce
+	 * @param seed   produce how many instructions
+	 * @return list of string
+	 */
+	private static ArrayList<String> generateInstructions(String prefix, int seed) {
+
+		int count = 0, randomLen = 0, left = 0, right = 0, intervals = 0;
+		String randomString = "";
+		String output = "";
+		ArrayList<String> list = new ArrayList<String>();
+
+		switch (prefix) {
+		case "put":
+			left = 3;
+			right = GET_REM_MAX_INPUT - 2 * WHITE_SPACE;
+			intervals = 2;
+			break;
+		case "save":
+			left = 2;
+			right = GET_REM_MAX_INPUT - 1 - 1 * WHITE_SPACE;
+			intervals = 1;
+			break;
+		case "get":
+			left = 1;
+			right = GET_REM_MAX_INPUT;
+			intervals = 0;
+			break;
+		case "rem":
+			left = 1;
+			right = GET_REM_MAX_INPUT;
+			intervals = 0;
+			break;
+		}
+
+		while (count < seed) {
+			randomLen = generateRandomInt(left, right);
+			randomString = generateRandomString(randomLen);
+			output = prefix + " " + randomSplit(randomString, intervals);
+
+			list.add(output);
+			count++;
+		}
+
+		return list;
+	}
+
+	/**
+	 * Produce seed times list instruction
+	 * 
+	 * @param seed
+	 * @return
+	 */
+	private static ArrayList<String> insertLists(int seed) {
+
+		int count = 0;
+		ArrayList<String> list = new ArrayList<String>();
+
+		while (count < seed) {
+			list.add("list");
+			count++;
+		}
+
+		return list;
+	}
+
+	/**
+	 * Generate random position of a string
+	 * 
+	 * @param len length of the string
+	 * @return random index position of the string, should be in [0, len)
+	 */
+	private static int generateRandomPosition(int len) {
+
+		Random random = new Random();
+
+		int position = random.nextInt(len); // produce [0, len) integer
+
+		return position;
+	}
+
+	/**
+	 * Random split the long string into substrings
+	 * 
+	 * @param str the long string
+	 * @return
+	 */
+	private static String randomSplit(String str, int intervals) {
+
+		String output = "";
+		int strLen = str.length();
+
+		switch (intervals) {
+		case 1:
+			if (strLen == 2) {
+				output = str.substring(0, 1) + " " + str.substring(1);
+			} else {
+				int position1 = generateRandomPosition(strLen); // make sure position1 is not at last index
+
+				while (position1 == 0)
+					position1 = generateRandomPosition(strLen); // make sure position1 is not 0
+
+				output = str.substring(0, position1) + " " + str.substring(position1);
+			}
+			break;
+		case 2:
+			if (strLen == 3) {
+				output = str.substring(0, 1) + " " + str.substring(1, 2) + " " + str.substring(2);
+			} else {
+				int position1 = generateRandomPosition(strLen - 1); // make sure position1 is not at last index
+
+				while (position1 == 0)
+					position1 = generateRandomPosition(strLen - 1); // make sure position1 is not 0
+
+				int[] arr = new int[strLen - position1 - 1];
+
+				for (int i = 0; i < strLen - position1 - 1; i++)
+					arr[i] = i + position1 + 1; // store what positions left in an array for random
+
+				int j = generateRandomPosition(arr.length); // random the second position to split
+				int position2 = arr[j];
+
+				while (position2 == position1) { // make sure position2 is not equal to position1
+					j = generateRandomPosition(arr.length);
+					position2 = arr[j];
+				}
+				output = str.substring(0, position1) + " " + str.substring(position1, position2) + " "
+						+ str.substring(position2);
+			}
+			break;
+		default:
+			output = str; // don't split
+			break;
+		}
+
+		return output;
+	}
+
+	private static Instruction generateRamdomInstruction() {
+
+		int[] insArr = { 0, 1, 2, 3 }; // remove list-4 and MASTERPW-5
+
+		int index = generateRandomPosition(insArr.length);
+
+		Instruction inst = INSTRUCTIONS[insArr[index]];
+
+		return inst;
+	}
+
+	/**
+	 * Generate random string in length of len
+	 * 
+	 * @param len specify the length of produced random string
+	 * @return string
+	 */
+	private static String generateRandomString(int len) {
+
+		int leftLimit = 33; // letter '!'
+		int rightLimit = 126; // letter '~'
+
+		Random random = new Random();
+		StringBuilder buffer = new StringBuilder(len);
+
+		for (int i = 0; i < len; i++) {
+			int randomLimitedInt = leftLimit + (int) (random.nextFloat() * (rightLimit - leftLimit + 1));
+			buffer.append((char) randomLimitedInt);
+		}
+
+		String generatedString = buffer.toString();
+
+		return generatedString;
+	}
+
+	/**
+	 * Get the URL (second argument) of an instruction
+	 * 
+	 * @param ins any instructions: put a b c
+	 * @return a
+	 */
+	private static String getURL(String ins) {
+		return ins.split(" ")[1];
+	}
+
+	/**
+	 * Get the master password (second argument) of SAVE
+	 * 
+	 * @param ins save instructions: save a b
+	 * @return a
+	 */
+	private static String getMasterPw(String ins) {
+		return ins.split(" ")[1];
+	}
+
+	/**
+	 * Read current state value from the properties
+	 * 
+	 * @param filePath file path
+	 * @param key
+	 * @return current state value
+	 */
+	private static int getValue(String filePath, String key) {
+		Properties p = new Properties();
+
+		try {
+			InputStream in = new BufferedInputStream(new FileInputStream(filePath));
+			p.load(in);
+			String value = p.getProperty(key);
+
+			return Integer.parseInt(value);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return 0;
+		}
+	}
+
+	private static void writeProperty(String filePath, String key, int value) {
+		Properties p = new Properties();
+
+		try {
+			OutputStream out = new FileOutputStream(filePath);
+			p.setProperty(key, Integer.toString(value));
+			p.store(out, "");
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static void write(Iterator<String> it) {
+		while (it.hasNext())
+			pw.println(it.next());
+	}
+
 }
-// TODO: Invalid inputs format: 1. 比如说input number 少了，input number多了。 2. 一行的string超过1022. 3. 总体instruction 数量超过 1024. 

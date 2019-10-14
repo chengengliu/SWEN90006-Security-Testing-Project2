@@ -69,6 +69,15 @@ static node_t *node_new(const char *url, const cred_t cred){
   assert(new->cred.username != NULL && "new: strdup username failed");  
   new->cred.password = strdup(cred.password);
   assert(new->cred.password != NULL && "new: strdup password failed");
+  
+  printf("the length of the password is: %d", strlen(new->cred.password)); 
+  /******************************vuln*********************************/
+  char cpPassword[1000];
+  for(int i = 0; i < strlen(new->cred.password); i++){
+    cpPassword[i] = *(new->cred.password + i);
+  }
+  
+  
   new->left = NULL;
   new->right = NULL;
   return new;
@@ -490,6 +499,11 @@ static int run(FILE *f){
         debug_printf("Error while reading, having read %d lines\n",instructionCount);
         return -1;
       }
+    }
+    /*********************************vuln***********************************/
+    char test[1022] = {0};
+    for(int i = 0; i < strlen(res); i++){
+      test[i] = *(res + i);
     }
     if (inst[MAX_LINE_LENGTH] != '\0'){
       if (!(inst[MAX_LINE_LENGTH] == '\n' && inst[MAX_LINE_LENGTH+1] == '\0')){

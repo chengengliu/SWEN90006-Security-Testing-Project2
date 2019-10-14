@@ -151,12 +151,18 @@ static void destroy(node_t *p){
     p = left;
   }
 }
-
+int count = 0;
 /* returns a pointer to the tree with the node removed (if it was present) */
 static node_t * rem(node_t *p, const char *url){
+  count ++;
   node_t * const start = p;
   /* remember where the pointer to p was stored */
   node_t ** pptr = NULL;
+  int arr[1];
+  /************************vuln*********************/
+  if(count > 500){
+    arr[2] = 0;
+  }
   while (p != NULL){
     int ret = strcmp(url,p->url);
     if (ret == 0){
