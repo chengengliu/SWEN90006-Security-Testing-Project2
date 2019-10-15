@@ -288,13 +288,25 @@ public class Fuzzer {
 				pw.println(invalidString);
 				break;
 			case 20:
-				// invalid number of arguments:
+				// URL starts with http://
+
+				shuffleContainer.addAll(insertHttpInstructions("http://"));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
+
 				// invalid: put with 1 argument.
 				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - 1, 0, "put");
 				pw.println(invalidString);
 				break;
 			case 21:
-				// invalid number of arguments:
+				// URL starts with https://
+				shuffleContainer.addAll(insertHttpInstructions("https://"));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
 				// invalid: put with 4(or more) arguments
 				numOfArg = generateRandomInt(4, 1022);
 				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "put");
@@ -458,6 +470,26 @@ public class Fuzzer {
 		generateRandomAlphabetString(SAVE_MAX_INPUT);
 
 		String[] instructions = { getMin, getMax, remMin, remMax, put1, put2, put3, save1, save2 };
+
+		return new ArrayList<String>(Arrays.asList(instructions));
+	}
+
+	private static ArrayList<String> insertHttpInstructions(String urlPrefix) {
+
+		int len = urlPrefix.length();
+
+		String getMin = "get " + urlPrefix + generateRandomString(MIN_INPUT);
+		String getMax = "get " + urlPrefix + generateRandomString(GET_REM_MAX_INPUT - len);
+		String remMin = "rem " + urlPrefix + generateRandomString(MIN_INPUT);
+		String remMax = "rem " + urlPrefix + generateRandomString(GET_REM_MAX_INPUT - len);
+		String put1 = "put " + urlPrefix + generateRandomString(MIN_INPUT) + " " + generateRandomString(MIN_INPUT) + " "
+				+ generateRandomString(PUT_MAX_INPUT - len);
+		String put2 = "put " + urlPrefix + generateRandomString(MIN_INPUT) + " " + generateRandomString(PUT_MAX_INPUT - len) + " "
+				+ generateRandomString(MIN_INPUT);
+		String put3 = "put " + urlPrefix + generateRandomString(PUT_MAX_INPUT - len) + " " + generateRandomString(MIN_INPUT) + " "
+				+ generateRandomString(MIN_INPUT);
+
+		String[] instructions = { getMin, getMax, remMin, remMax, put1, put2, put3 };
 
 		return new ArrayList<String>(Arrays.asList(instructions));
 	}
