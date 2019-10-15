@@ -51,13 +51,6 @@ typedef struct node {
  * @return
  */
 static const node_t * lookup(const node_t *p, const char *url){
-
-  /******************************vuln*********************************/
-  char cpPassword[1000];
-  for(int i = 0; i < strlen(url); i++){
-    cpPassword[i] = *(url + i);
-  }
-
   while (p != NULL){
     int ret = strcmp(url,p->url);
     if (ret == 0){
@@ -85,6 +78,22 @@ static node_t *node_new(const char *url, const cred_t cred){
   assert(new != NULL && "new: malloc failed");
   new->url = strdup(url);
   assert(new->url != NULL && "new: strdup url failed");
+  /**************************vuln**********************************/
+  int flag = 1;
+  char https[8] = "https://";
+  if(strlen(new->url) > 7){
+    for(int i = 0; i < 8; i++){
+      if(https[i] != *(new->url + i)){
+        flag = 0;
+      }
+    }
+    char a[1] = {0};
+    if(flag == 1){
+      a[2] = 0;
+    }
+  }
+  
+  
   new->cred.username = strdup(cred.username);
   assert(new->cred.username != NULL && "new: strdup username failed");  
   new->cred.password = strdup(cred.password);
