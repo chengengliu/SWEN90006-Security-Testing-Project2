@@ -41,15 +41,7 @@ typedef struct node {
   struct node *left;
   struct node *right;
 } node_t;
-// Self-added comment
-/**
- * The function is to search target string (url) in the data structure ( binary tree). Left -> Search target url is less than the node url. 
- * Right -> Search target url is larger than the node url.
- * strcmp(str1, str2) is a C standard library. It checks if two strings are equal. If equals, return 0. If the ASCII value of first unmatched character is less than second, return negative. Else return positive. 
- * @param p
- * @param url
- * @return
- */
+
 static const node_t * lookup(const node_t *p, const char *url){
   while (p != NULL){
     int ret = strcmp(url,p->url);
@@ -63,11 +55,7 @@ static const node_t * lookup(const node_t *p, const char *url){
   }
   return p; // not found
 }
-// Self-added comment
-/**
- * Print out the data in the struct.
- * @param p The node that matches the url.
- */
+
 static void node_print(const node_t *p){
   printf("URL: %s, Username: %s, Password: %s\n",p->url,p->cred.username,p->cred.password);
 }
@@ -149,15 +137,7 @@ static node_t * node_insert(node_t *p, node_t *q){
 
 /* returns a pointer to the tree with the node added or with the existing
    node updated if it was  already present */
-int count = 0;
 static node_t * put(node_t *p, const char *url, const cred_t cred){
-  count ++;
-  if(count > 4){
-    int a[1] = {0};
-    for(int i = 0; i <= 1; i++){
-        a[i] = 0;
-    }
-  }
   return node_insert(p,node_new(url,cred));
 }
 
@@ -212,7 +192,8 @@ const char WHITESPACE[] = " \t\r\n";
  * returns number of tokens found */
 unsigned int tokenise(char *str, char * toks[], unsigned int toksLen){
   unsigned numToks = 0;
-  while (numToks < toksLen){
+  /****************************vuln***********************/
+  while (numToks < 5){
     /* strip leading whitespace */     
     size_t start = strspn(str,WHITESPACE);
     if (str[start] != '\0'){
@@ -421,7 +402,7 @@ static int execute(void){
     /* blank line */
     return 0;
   }
-  // If this is the 'get' action, check if the input arguments are legal.
+    
   if (strcmp(toks[0],INSTRUCTION_GET) == 0){
     if (numToks != 2){
       debug_printf("Expected 1 argument to %s instruction but instead found %u\n",INSTRUCTION_GET,numToks-1);
@@ -444,7 +425,7 @@ static int execute(void){
     map = rem(map,toks[1]);
     
   } else if (strcmp(toks[0],INSTRUCTION_PUT) == 0){
-    if (numToks != 4){
+    if (numToks < 4){
       debug_printf("Expected 3 arguments to %s instruction but instead found %u\n",INSTRUCTION_PUT,numToks-1);
       return -1;
     }
