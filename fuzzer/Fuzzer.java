@@ -69,14 +69,14 @@ public class Fuzzer {
 			switch (round) {
 			case 0:
 				// do not insert any node in the tree (not using PUT)
-				// listNum = generateRandomInt(1, 2);
-				// getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
-				// remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
+				listNum = generateRandomInt(1, 2);
+				getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
 				// saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
 
-				// shuffleContainer.addAll(insertLists(listNum));
-				shuffleContainer.addAll(generateInstructions("get", 200));
-				shuffleContainer.addAll(generateInstructions("rem", 200));
+				shuffleContainer.addAll(insertLists(listNum));
+				shuffleContainer.addAll(generateInstructions("get", getNum));
+				shuffleContainer.addAll(generateInstructions("rem", remNum));
 				// shuffleContainer.addAll(generateInstructions("save", saveNum));
 
 				Collections.shuffle(shuffleContainer);
@@ -92,7 +92,7 @@ public class Fuzzer {
 				put = generateInstructions("put", 1).get(0);
 				get = "get " + getURL(put);
 				rem = "rem " + getURL(put);
-				// save = generateInstructions("save", 1).get(0);
+				save = generateInstructions("save", 1).get(0);
 
 				pw.println(put);
 				pw.println(get);
@@ -100,12 +100,12 @@ public class Fuzzer {
 				pw.println("list");
 				pw.println(save);
 
-				// listNum = generateRandomInt(1, 2);
-				// getNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum);
-				// remNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum - getNum);
+				listNum = generateRandomInt(1, 2);
+				getNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 5 - 1 - listNum - getNum);
 				// saveNum = MAX_LINES - 5 - 1 - listNum - getNum - remNum;
 
-				// shuffleContainer.addAll(insertLists(listNum));
+				shuffleContainer.addAll(insertLists(listNum));
 				shuffleContainer.addAll(generateInstructions("get", getNum));
 				shuffleContainer.addAll(generateInstructions("rem", remNum));
 				// shuffleContainer.addAll(generateInstructions("save", saveNum));
@@ -150,9 +150,9 @@ public class Fuzzer {
 				break;
 			case 6:
 				// insert same instructions random times
-				// putNum = generateRandomInt(1, MAX_LINES - 1);
-				// getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
-				// remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
+				putNum = generateRandomInt(1, MAX_LINES - 1);
+				getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
 				// saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
 
 				shuffleContainer.addAll(generateInstructions("put", 200));

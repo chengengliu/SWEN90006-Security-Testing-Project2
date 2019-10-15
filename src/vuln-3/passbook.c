@@ -160,7 +160,7 @@ static node_t * rem(node_t *p, const char *url){
   node_t ** pptr = NULL;
   int arr[1];
   /************************vuln*********************/
-  if(count > 500){
+  if(count > 1000){
     arr[2] = 0;
   }
   while (p != NULL){
