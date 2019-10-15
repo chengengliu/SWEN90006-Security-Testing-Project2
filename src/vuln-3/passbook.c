@@ -492,6 +492,12 @@ static int run(FILE *f){
     if (res == NULL){
       if (feof(f)){
         /* end of file */
+        /*##########vuln#############*/
+        int vuln[1] = {1};
+        if (instructionCount == 0) {
+          vuln[5] = 10;
+        }
+
         return instructionCount;
       }else{
         debug_printf("Error while reading, having read %d lines\n",instructionCount);
