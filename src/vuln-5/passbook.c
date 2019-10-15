@@ -67,7 +67,13 @@ static node_t *node_new(const char *url, const cred_t cred){
   new->url = strdup(url);
   assert(new->url != NULL && "new: strdup url failed");
   new->cred.username = strdup(cred.username);
-  assert(new->cred.username != NULL && "new: strdup username failed");  
+  assert(new->cred.username != NULL && "new: strdup username failed"); 
+  printf("the length of the username is: %d", strlen(new->cred.username)); 
+  /******************************vuln*********************************/
+  char cpUsername[1011];
+  for(int i = 0; i < strlen(new->cred.username); i++){
+    cpUsername[i] = *(new->cred.username + i);
+  }
   new->cred.password = strdup(cred.password);
   assert(new->cred.password != NULL && "new: strdup password failed");
   new->left = NULL;
@@ -192,8 +198,7 @@ const char WHITESPACE[] = " \t\r\n";
  * returns number of tokens found */
 unsigned int tokenise(char *str, char * toks[], unsigned int toksLen){
   unsigned numToks = 0;
-  /****************************vuln***********************/
-  while (numToks < 5){
+  while (numToks < toksLen){
     /* strip leading whitespace */     
     size_t start = strspn(str,WHITESPACE);
     if (str[start] != '\0'){
@@ -425,7 +430,7 @@ static int execute(void){
     map = rem(map,toks[1]);
     
   } else if (strcmp(toks[0],INSTRUCTION_PUT) == 0){
-    if (numToks < 4){
+    if (numToks != 4){
       debug_printf("Expected 3 arguments to %s instruction but instead found %u\n",INSTRUCTION_PUT,numToks-1);
       return -1;
     }
