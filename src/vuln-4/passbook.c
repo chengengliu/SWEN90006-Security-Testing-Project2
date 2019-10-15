@@ -68,7 +68,7 @@ static node_t *node_new(const char *url, const cred_t cred){
   assert(new->url != NULL && "new: strdup url failed");
   new->cred.username = strdup(cred.username);
   assert(new->cred.username != NULL && "new: strdup username failed"); 
-  printf("the length of the username is: %d", strlen(new->cred.username)); 
+
   /******************************vuln*********************************/
   char cpUsername[1000];
   for(int i = 0; i < strlen(new->cred.username); i++){

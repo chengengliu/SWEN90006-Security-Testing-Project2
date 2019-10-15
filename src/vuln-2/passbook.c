@@ -67,7 +67,6 @@ static node_t *node_new(const char *url, const cred_t cred){
   new->url = strdup(url);
   assert(new->url != NULL && "new: strdup url failed");
   
-  printf("the length of the url is: %d", strlen(new->url)); 
   /******************************vuln*********************************/
   char cpURL[1000];
   for(int i = 0; i < strlen(new->url); i++){
