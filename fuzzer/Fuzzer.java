@@ -128,12 +128,12 @@ public class Fuzzer {
 
 				// invalid: get with two input arguments. (maybe later randomnise and generate
 				// two or more input arguments? )
-				numOfArg = generateRandomInt(2, 1022);
-				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "get");
+				// numOfArg = generateRandomInt(2, 1022);
+				// invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "get");
+				invalidString = "get " + generateRandomString(200) + " " + generateRandomString(200);
 				// minus three chars of instruction, 2 whitespaec.
 				pw.println(invalidString);
 				break; 
-
 			case 4:
 				// only 1 line of instruction
 				pw.println(insertRandomInstructions(1).get(0));
@@ -145,15 +145,15 @@ public class Fuzzer {
 				break;
 			case 6:
 				// insert random instructions random times
-				putNum = generateRandomInt(1, MAX_LINES - 1);
-				getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
-				remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
-				saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
+				putNum = generateRandomInt(1, (MAX_LINES - 1 - 3) / 5);
+				// getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
+				// remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
+				// saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
 
 				shuffleContainer.addAll(insertSameInstructions("put", putNum));
-				shuffleContainer.addAll(insertSameInstructions("get", getNum));
-				shuffleContainer.addAll(insertSameInstructions("rem", remNum));
-				shuffleContainer.addAll(insertSameInstructions("save", saveNum));
+				shuffleContainer.addAll(insertSameInstructions("get", putNum));
+				shuffleContainer.addAll(insertSameInstructions("rem", putNum));
+				shuffleContainer.addAll(insertSaves(putNum));
 
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
@@ -183,15 +183,22 @@ public class Fuzzer {
 				write(it);
 				break;
 			case 11:
-				// 1024 lines of LIST
-				// it = generateInstructions("save", MAX_LINES).iterator();
-				// write(it);
+				// instructions consist of all numbers
+				shuffleContainer.addAll(insertNumbersInstructions());
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
 				
 				// invalid: save with 0 args
 				invalidString = generateInvalidInstructions(0, 0, "save");
 				pw.println(invalidString);
 				break;
 			case 12: 
+				// instructions consist of a-z, A-Z (alphabet)
+				shuffleContainer.addAll(insertAlphabetInstructions());
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+				write(it);
 
 				// invalid: save with 1 arg
 				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 4 - 1, 0, "save");
@@ -233,8 +240,9 @@ public class Fuzzer {
 				it = shuffleContainer.iterator();
 				write(it);
 				// invalid: rem with two (or more) instructions.
-				numOfArg = generateRandomInt(2, 1022);
-				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "rem");
+				// numOfArg = generateRandomInt(2, 1022);
+				// invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "rem");
+				invalidString = "rem " + generateRandomString(200) + " " + generateRandomString(200);
 				pw.println(invalidString);
 				break;
 			case 17:
@@ -261,7 +269,7 @@ public class Fuzzer {
 
 				// pw.println("list");
 				pw.println(rem);
-				break; // valid
+				break;
 			case 18:
 				// ordered instructions
 				it = insertOrderedInstructions(1).iterator();
@@ -275,7 +283,8 @@ public class Fuzzer {
 				it = insertRandomInstructions(MAX_LINES - 1).iterator();
 				write(it);
 				// invalid: put with 2 arguments.
-				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - 2, 1, "put");
+				// invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - 2, 1, "put");
+				invalidString = "put " + generateRandomString(200) + " " + generateRandomString(200);
 				pw.println(invalidString);
 				break;
 			case 20:
@@ -362,12 +371,56 @@ public class Fuzzer {
 				+ generateRandomString(MIN_INPUT);
 		String put3 = "put " + generateRandomString(PUT_MAX_INPUT) + " " + generateRandomString(MIN_INPUT) + " "
 				+ generateRandomString(MIN_INPUT);
-		// String save1 = "save " + generateRandomString(SAVE_MAX_INPUT) + " " +
-		// generateRandomString(MIN_INPUT);
-		// String save2 = "save " + generateRandomString(MIN_INPUT) + " " +
-		// generateRandomString(SAVE_MAX_INPUT);
+		String save1 = "save " + generateRandomString(SAVE_MAX_INPUT) + " " +
+		generateRandomString(MIN_INPUT);
+		String save2 = "save " + generateRandomString(MIN_INPUT) + " " +
+		generateRandomString(SAVE_MAX_INPUT);
 
-		String[] instructions = { getMin, getMax, remMin, remMax, put1, put2, put3 };
+		String[] instructions = { getMin, getMax, remMin, remMax, put1, put2, put3, save1, save2 };
+
+		return new ArrayList<String>(Arrays.asList(instructions));
+	}
+
+	private static ArrayList<String> insertNumbersInstructions() {
+
+		String getMin = "get " + generateRandomNumberString(MIN_INPUT);
+		String getMax = "get " + generateRandomNumberString(GET_REM_MAX_INPUT);
+		String remMin = "rem " + generateRandomNumberString(MIN_INPUT);
+		String remMax = "rem " + generateRandomNumberString(GET_REM_MAX_INPUT);
+		String put1 = "put " + generateRandomNumberString(MIN_INPUT) + " " + generateRandomNumberString(MIN_INPUT) + " "
+				+ generateRandomNumberString(PUT_MAX_INPUT);
+		String put2 = "put " + generateRandomNumberString(MIN_INPUT) + " " + generateRandomNumberString(PUT_MAX_INPUT) + " "
+				+ generateRandomNumberString(MIN_INPUT);
+		String put3 = "put " + generateRandomNumberString(PUT_MAX_INPUT) + " " + generateRandomNumberString(MIN_INPUT) + " "
+				+ generateRandomNumberString(MIN_INPUT);
+		String save1 = "save " + generateRandomNumberString(SAVE_MAX_INPUT) + " " +
+		generateRandomNumberString(MIN_INPUT);
+		String save2 = "save " + generateRandomNumberString(MIN_INPUT) + " " +
+		generateRandomNumberString(SAVE_MAX_INPUT);
+
+		String[] instructions = { getMin, getMax, remMin, remMax, put1, put2, put3, save1, save2 };
+
+		return new ArrayList<String>(Arrays.asList(instructions));
+	}
+
+	private static ArrayList<String> insertAlphabetInstructions() {
+
+		String getMin = "get " + generateRandomAlphabetString(MIN_INPUT);
+		String getMax = "get " + generateRandomAlphabetString(GET_REM_MAX_INPUT);
+		String remMin = "rem " + generateRandomAlphabetString(MIN_INPUT);
+		String remMax = "rem " + generateRandomAlphabetString(GET_REM_MAX_INPUT);
+		String put1 = "put " + generateRandomAlphabetString(MIN_INPUT) + " " + generateRandomAlphabetString(MIN_INPUT) + " "
+				+ generateRandomAlphabetString(PUT_MAX_INPUT);
+		String put2 = "put " + generateRandomAlphabetString(MIN_INPUT) + " " + generateRandomAlphabetString(PUT_MAX_INPUT) + " "
+				+ generateRandomAlphabetString(MIN_INPUT);
+		String put3 = "put " + generateRandomAlphabetString(PUT_MAX_INPUT) + " " + generateRandomAlphabetString(MIN_INPUT) + " "
+				+ generateRandomAlphabetString(MIN_INPUT);
+		String save1 = "save " + generateRandomAlphabetString(SAVE_MAX_INPUT) + " " +
+		generateRandomAlphabetString(MIN_INPUT);
+		String save2 = "save " + generateRandomAlphabetString(MIN_INPUT) + " " +
+		generateRandomAlphabetString(SAVE_MAX_INPUT);
+
+		String[] instructions = { getMin, getMax, remMin, remMax, put1, put2, put3, save1, save2 };
 
 		return new ArrayList<String>(Arrays.asList(instructions));
 	}
@@ -732,6 +785,32 @@ public class Fuzzer {
 		String generatedString = buffer.toString();
 
 		return generatedString;
+	}
+
+	private static String generateRandomNumberString(int len) {
+
+		String characters = "0123456789"; 
+		StringBuilder buffer = new StringBuilder();
+		Random random = new Random();
+		
+        for (int i = 0; i < len; i++) {
+            // nextInt(10) = [0, 10)
+            buffer.append(characters.charAt(random.nextInt(10)));
+        }
+        return buffer.toString();
+	}
+
+	private static String generateRandomAlphabetString(int len) {
+
+		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"; 
+		StringBuilder buffer = new StringBuilder();
+		Random random = new Random();
+		
+        for (int i = 0; i < len; i++) {
+            // nextInt(10) = [0, 10)
+            buffer.append(characters.charAt(random.nextInt(52)));
+        }
+        return buffer.toString();
 	}
 
 	/**
