@@ -130,10 +130,11 @@ public class Fuzzer {
         write(it);
         
         // invalid: get with two input arguments. (maybe later randomnise and generate two or more input arguments? )
-        numOfArg = generateRandomInt(2, 1022);
-        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-numOfArg, numOfArg-1,"get"); 
-        // minus three chars of instruction, 2 whitespaec. 
-        pw.println(invalidString);
+        // numOfArg = generateRandomInt(2, 1022);
+        // invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-numOfArg, numOfArg-1,"get"); 
+        // // minus three chars of instruction, 2 whitespaec. 
+        // pw.println(invalidString);
+        pw.println("put a b c");
         break; // invalid: insert 1025 lines of file
         
 			case 4:
