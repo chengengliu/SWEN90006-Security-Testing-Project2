@@ -158,11 +158,7 @@ static node_t * rem(node_t *p, const char *url){
   node_t * const start = p;
   /* remember where the pointer to p was stored */
   node_t ** pptr = NULL;
-  int arr[1];
-  /************************vuln*********************/
-  if(count > 1000){
-    arr[2] = 0;
-  }
+  
   while (p != NULL){
     int ret = strcmp(url,p->url);
     if (ret == 0){
