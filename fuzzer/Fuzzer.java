@@ -519,7 +519,7 @@ public class Fuzzer {
 	}
 
 	private static void writeProperty(String filePath, String key, int value) {
-		Properties p = new Properties();
+		Properties p = new Properties(); 
 
 		try {
 			OutputStream out = new FileOutputStream(filePath);
