@@ -126,6 +126,76 @@ public class Fuzzer {
 				shuffleContainer.addAll(insertMinMaxInstructions());
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
+        write(it);
+        
+        // invalid: get with two input arguments. (maybe later randomnise and generate two or more input arguments? )
+        // numOfArg = generateRandomInt(2, 1022);
+        // invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-numOfArg, numOfArg-1,"get"); 
+        // // minus three chars of instruction, 2 whitespaec. 
+        // pw.println(invalidString);
+        pw.println("put a b c");
+        break; // invalid: insert 1025 lines of file
+        
+			case 4:
+				// only 1 line of instruction
+				pw.println(insertRandomInstructions(1).get(0));
+				break;
+			case 5:
+				// 1024 lines of instructions
+				it = insertRandomInstructions(MAX_LINES).iterator();
+				write(it);
+				break;
+			case 6:
+				// insert same instructions random times
+				putNum = generateRandomInt(1, MAX_LINES - 1);
+				getNum = generateRandomInt(1, MAX_LINES - 1 - listNum);
+				remNum = generateRandomInt(1, MAX_LINES - 1 - listNum - getNum);
+				saveNum = MAX_LINES - 1 - listNum - getNum - remNum;
+
+				shuffleContainer.addAll(generateInstructions("put", putNum));
+				shuffleContainer.addAll(generateInstructions("get", getNum));
+				shuffleContainer.addAll(generateInstructions("rem", remNum));
+				shuffleContainer.addAll(generateInstructions("save", saveNum));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
+        write(it); 
+        // invalid: rem with 0 input argument. 
+        invalidString = generateInvalidInstructions(0,0,"rem");
+        pw.println(invalidString);
+				break;
+			case 7:
+				// 1024 lines of PUT
+				it = generateInstructions("put", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 8:
+				// 1024 lines of GET
+				it = generateInstructions("get", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 9:
+				// 1024 lines of REM
+				it = generateInstructions("rem", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 10:
+				// 1024 lines of SAVE
+				it = generateInstructions("save", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 11:
+				// 1024 lines of LIST
+				it = generateInstructions("save", MAX_LINES).iterator();
+				write(it);
+				break;
+			case 12:
+				// PUT, REM same times
+				shuffleContainer.addAll(generateInstructions("put", MAX_LINES / 2));
+				shuffleContainer.addAll(generateInstructions("rem", MAX_LINES / 2));
+
+				Collections.shuffle(shuffleContainer);
+				it = shuffleContainer.iterator();
 				write(it);
 
 				pw.println("put a b c d");
