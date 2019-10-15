@@ -17,7 +17,7 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
- 
+
 /* a stub for your team's fuzzer */
 public class Fuzzer {
 
@@ -82,9 +82,11 @@ public class Fuzzer {
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
 				write(it);
+
 				// invalid: get with zero input argument.
 				invalidString = generateInvalidInstructions(0, 0, "get");
 				pw.println(invalidString);
+
 				break;
 
 			case 1:
@@ -121,7 +123,6 @@ public class Fuzzer {
 				// do nothing
 				break;
 			case 3:
-				// TODO: 这个地方有问题吧？？为什么是MAX_LINES-1-9?
 				// min & max inputs
 				shuffleContainer.addAll(insertRandomInstructions(MAX_LINES - 1 - 9 - 1));
 				shuffleContainer.addAll(insertMinMaxInstructions());
@@ -129,17 +130,17 @@ public class Fuzzer {
 				it = shuffleContainer.iterator();
 				write(it);
 
-				// invalid: get with two input arguments. (maybe later randomnise and generate
-				// two or more input arguments? )
+				pw.println("put a b c d");
+
+				// // invalid: get with two input arguments. (maybe later randomnise and
+				// generate
+				// // two or more input arguments? )
 				// numOfArg = generateRandomInt(2, 1022);
-				// invalidString =
-				// generateInvalidInstructions(MAX_INSTRUCTION_LENGTH-3-numOfArg,
-				// numOfArg-1,"get");
+				// invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 -
+				// numOfArg, numOfArg - 1, "get");
 				// // minus three chars of instruction, 2 whitespaec.
 				// pw.println(invalidString);
-				pw.println("put a b c d");
 				break; // invalid: insert 1025 lines of file
-
 			case 4:
 				// only 1 line of instruction
 				pw.println(insertRandomInstructions(1).get(0));
@@ -284,13 +285,11 @@ public class Fuzzer {
 			case 20:
 				// invalid number of arguments:
 				// invalid: put with 4(or more) arguments
-				// TODO: 我不知道这个split值设置的这么大好不好。。或者说只需要稍微多几个就行？
 				numOfArg = generateRandomInt(4, 1022);
 				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "put");
 				pw.println(invalidString);
 				break;
 			case 21:
-				// TODO: 新增加invalid: 测随机指令，比如abc， bac...etc, 以及合法split。
 				// invalid random instructions that are not valid. i.e, ['abc'] instead of
 				// ['put'].
 				// Length of the random instruction is equal to the length of splitting.
