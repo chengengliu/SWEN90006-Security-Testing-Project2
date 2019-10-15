@@ -259,7 +259,7 @@ public class Fuzzer {
 				// pw.println("list");
 				pw.println(rem);
 				break; // valid
-			case 20:
+			case 17:
 				// ordered instructions
 				it = insertOrderedInstructions(1).iterator();
 				write(it);
@@ -267,7 +267,7 @@ public class Fuzzer {
 				invalidString = generateInvalidInstructions(0, 0, "put");
 				pw.println(invalidString);
 				break;
-			case 21:
+			case 18:
 				// random instructions
 				it = insertRandomInstructions(MAX_LINES - 1).iterator();
 				write(it);
@@ -275,13 +275,13 @@ public class Fuzzer {
 				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - 2, 1, "put");
 				pw.println(invalidString);
 				break;
-			case 22:
+			case 19:
 				// invalid number of arguments:
 				// invalid: put with 1 argument.
 				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - 1, 0, "put");
 				pw.println(invalidString);
 				break;
-			case 23:
+			case 20:
 				// invalid number of arguments:
 				// invalid: put with 4(or more) arguments
 				// TODO: 我不知道这个split值设置的这么大好不好。。或者说只需要稍微多几个就行？
@@ -289,7 +289,7 @@ public class Fuzzer {
 				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "put");
 				pw.println(invalidString);
 				break;
-			case 24:
+			case 21:
 				// TODO: 新增加invalid: 测随机指令，比如abc， bac...etc, 以及合法split。
 				// invalid random instructions that are not valid. i.e, ['abc'] instead of
 				// ['put'].
@@ -300,6 +300,9 @@ public class Fuzzer {
 						MAX_INSTRUCTION_LENGTH - invalidInstruction.length() - randomLen, randomLen - 1,
 						invalidInstruction);
 				pw.println(invalidArgs);
+				break;
+			default:
+				break;
 			}
 
 			/* update state */
