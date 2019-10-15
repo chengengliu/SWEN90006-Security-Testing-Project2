@@ -333,10 +333,47 @@ public class Fuzzer {
 
 	private static String generateInvalidInstructions(int seed, int intervals, String instruction) {
 		String randomString = generateRandomString(seed);
-		String output = instruction;
-		output = output + " " + randomSplit(randomString, intervals);
+    String output = instruction;
+    int splitUpper = randomString.length();
+    switch(intervals){
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+        output = output + " " + randomSplit(randomString, intervals);
+        break;
+      default:
+        output = output + " " + splitMultipleStrings(randomString, splitUpper);
+        break;
+
+    }
 		return output;
-	}
+  }
+  
+  private static String splitMultipleStrings(String input, int upperLimit){
+    String temp = "", output ="";
+    // For now hardcode. 
+    int splitNumber = generateRandomInt(4,upperLimit), tempSplit = 0, splitIndex = generateRandomInt(0, upperLimit);
+    boolean isFirstSplit = true;
+    // System.out.println("Split number is: "+splitNumber);
+    for (int i=0; i < splitNumber-1; i++){
+      if(isFirstSplit){
+        temp = input.substring(0,splitIndex);
+        output += temp;
+        isFirstSplit = false;
+        
+      }
+      if((splitIndex == MAX_INSTRUCTION_LENGTH-1) || splitIndex == MAX_INSTRUCTION_LENGTH){
+        return output;
+      }
+      tempSplit = splitIndex;
+      splitIndex = generateRandomInt(tempSplit, upperLimit);
+      output += "   "+input.substring(tempSplit, splitIndex);
+      // System.out.println(i+"  "+ tempSplit+"  "+splitIndex+"  "+output);
+    }
+    return output;
+  }
+
 
 	/**
 	 * Produce a random integer in [min, max]
