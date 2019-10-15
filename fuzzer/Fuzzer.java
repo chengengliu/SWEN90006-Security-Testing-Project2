@@ -44,10 +44,10 @@ public class Fuzzer {
 
 		ArrayList<String> shuffleContainer = new ArrayList<String>();
 
-		System.out.println(Instruction.getBNF());
+		// System.out.println(Instruction.getBNF());
 
-		System.out.println(generateInstructions("put", 1).get(0));
-		System.out.println(insertRandomInstructions(1).get(0));
+		// System.out.println(generateInstructions("put", 1).get(0));
+		// System.out.println(insertRandomInstructions(1).get(0));
 
 		Iterator<String> it = null;
 
@@ -61,7 +61,9 @@ public class Fuzzer {
 			pw = new PrintWriter(out);
 			switch (round){
 				case 0:
-					pw.println("put a b c");
+					for (int i =0; i <10; i++){
+						pw.println("put a b c");
+					}
 					break;
 				default:
 					break;
