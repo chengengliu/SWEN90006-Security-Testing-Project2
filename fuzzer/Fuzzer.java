@@ -25,7 +25,7 @@ public class Fuzzer {
 //	private static final String STATUS_FILE = "status.txt";
 	private static final String PROPERTIES = "../state.properties";
 
-	private static final int TOTAL_STRATEGY = 20;
+	private static final int TOTAL_STRATEGY = 1;
 	private static final int RANDOM_SEED = 10;
 	private static final int MAX_LINES = 1024;
 	private static final int MAX_INSTRUCTION_LENGTH = 1022;
@@ -59,59 +59,14 @@ public class Fuzzer {
 		try {
 			out = new FileOutputStream(OUTPUT_FILE);
 			pw = new PrintWriter(out);
-
-			switch (round) {
-			case 0:
-				// only 1 line of instruction
-				pw.println(insertRandomInstructions(1).get(0));
-				break;
-			case 1:
-				// 1024 lines of instructions
-				it = insertRandomInstructions(MAX_LINES).iterator();
-				write(it);
-				break;
-			case 2:
-				// only one node in the tree
-				pw.println(generateInstructions("put", 1).get(0));
-				break;
-			case 3:
-				// text file does not exist
-				break;
-			case 4:
-				// ordered instructions
-				it = insertOrderedInstructions(1).iterator();
-				write(it);
-				break;
-			case 5:
-				// min & max inputs
-				it = insertMinMaxInstructions().iterator();
-				write(it);
-				break;
-			case 6:
-				// same puts
-				it = insertSamePut(1).iterator();
-				write(it);
-				break;
-			case 7:
-				// put > 500 times
-				it = generateInstructions("put", 501).iterator();
-				write(it);
-				break;
-			case 8:
-				// random instructions
-				it = insertRandomInstructions(RANDOM_SEED).iterator();
-				write(it);
-				break;
-			case 9:
-				// 1024行全是put/get/rem/save...
-				break;
-			case 10:
-				// put, rem 次数一样; put, get 次数一样...
-				break;
-			case 11:
-				// 在1024行中，只用特定的几种url/username/password
-				break;
+			switch (round){
+				case 0:
+					pw.println("put a b c");
+					break;
+				default:
+					break;
 			}
+			
 
 //			ArrayList<String> minMaxList = insertMinMaxInstructions();
 //			ArrayList<String> randomList = insertRandomInstructions(RANDOM_SEED);
@@ -126,14 +81,13 @@ public class Fuzzer {
 //			write(it);
 
 			// make sure the first .txt only has 1 input, second .txt only has 1024 inputs
-			if (round != 0 || round != 1) {
-				/* insert a "list" */
-				pw.println("list");
+			// if (round != 0 || round != 1) {
+			// 	/* insert a "list" */
+			// 	pw.println("list");
 				
-				/* insert an invalid input */
-				pw.println(insertLongInstructions());	
-			}
-			
+			// 	/* insert an invalid input */
+			// 	pw.println(insertLongInstructions());	
+			// }
 			/* update state */
 			writeProperty(PROPERTIES, "state", round + 1);
 			
