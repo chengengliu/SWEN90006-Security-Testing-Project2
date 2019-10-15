@@ -77,7 +77,7 @@ public class Fuzzer {
 				// shuffleContainer.addAll(insertLists(listNum));
 				shuffleContainer.addAll(generateInstructions("get", getNum));
 				shuffleContainer.addAll(generateInstructions("rem", remNum));
-				shuffleContainer.addAll(generateInstructions("save", saveNum));
+				// shuffleContainer.addAll(generateInstructions("save", saveNum));
 
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
@@ -110,7 +110,7 @@ public class Fuzzer {
 				// shuffleContainer.addAll(insertLists(listNum));
 				shuffleContainer.addAll(generateInstructions("get", getNum));
 				shuffleContainer.addAll(generateInstructions("rem", remNum));
-				shuffleContainer.addAll(generateInstructions("save", saveNum));
+				// shuffleContainer.addAll(generateInstructions("save", saveNum));
 
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
@@ -160,7 +160,7 @@ public class Fuzzer {
 				shuffleContainer.addAll(generateInstructions("put", putNum));
 				shuffleContainer.addAll(generateInstructions("get", getNum));
 				shuffleContainer.addAll(generateInstructions("rem", remNum));
-				shuffleContainer.addAll(generateInstructions("save", saveNum));
+				// shuffleContainer.addAll(generateInstructions("save", saveNum));
 
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
@@ -186,13 +186,13 @@ public class Fuzzer {
 				break;
 			case 10:
 				// 1024 lines of SAVE
-				it = generateInstructions("save", MAX_LINES).iterator();
-				write(it);
+				// it = generateInstructions("save", MAX_LINES).iterator();
+				// write(it);
 				break;
 			case 11:
 				// 1024 lines of LIST
-				it = generateInstructions("save", MAX_LINES).iterator();
-				write(it);
+				// it = generateInstructions("save", MAX_LINES).iterator();
+				// write(it);
 				break;
 			case 12:
 				// PUT, REM same times
@@ -496,7 +496,8 @@ public class Fuzzer {
 				list.add(output);
 				break;
 			case SAVE:
-				output = generateInstructions("save", 1).get(0);
+				// output = generateInstructions("save", 1).get(0);
+				output= "";
 				list.add(output);
 				break;
 			default:
