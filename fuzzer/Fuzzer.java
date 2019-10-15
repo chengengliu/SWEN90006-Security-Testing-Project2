@@ -44,10 +44,10 @@ public class Fuzzer {
 
 		ArrayList<String> shuffleContainer = new ArrayList<String>();
 
-		System.out.println(Instruction.getBNF());
+		// System.out.println(Instruction.getBNF());
 
-		System.out.println(generateInstructions("put", 1).get(0));
-		System.out.println(insertRandomInstructions(1).get(0));
+		// System.out.println(generateInstructions("put", 1).get(0));
+		// System.out.println(insertRandomInstructions(1).get(0));
 
 		Iterator<String> it = null;
 
