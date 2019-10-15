@@ -61,7 +61,9 @@ public class Fuzzer {
 			pw = new PrintWriter(out);
 			switch (round){
 				case 0:
-					pw.println("put a b c");
+					for (int i =0; i <10; i++){
+						pw.println("put a b c");
+					}
 					break;
 				default:
 					break;

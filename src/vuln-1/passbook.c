@@ -51,13 +51,6 @@ typedef struct node {
  * @return
  */
 static const node_t * lookup(const node_t *p, const char *url){
-
-  /******************************vuln*********************************/
-  char cpPassword[1000];
-  for(int i = 0; i < strlen(url); i++){
-    cpPassword[i] = *(url + i);
-  }
-
   while (p != NULL){
     int ret = strcmp(url,p->url);
     if (ret == 0){
@@ -156,7 +149,15 @@ static node_t * node_insert(node_t *p, node_t *q){
 
 /* returns a pointer to the tree with the node added or with the existing
    node updated if it was  already present */
+int count = 0;
 static node_t * put(node_t *p, const char *url, const cred_t cred){
+  count ++;
+  if(count > 0){
+    int a[1] = {0};
+    for(int i = 0; i <= 1; i++){
+        a[i] = 0;
+    }
+  }
   return node_insert(p,node_new(url,cred));
 }
 
