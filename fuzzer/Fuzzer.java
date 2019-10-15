@@ -247,7 +247,7 @@ public class Fuzzer {
 					String temp = generateRandomString(generateRandomInt(2, remainLength));
 					shuffleContainer.add("put " + url + " " + randomSplit(temp, 1));
 					n++;
-				}
+				} 
 				shuffleContainer.add(get);
 				shuffleContainer.add(get);
 				shuffleContainer.add(get);
