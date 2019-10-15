@@ -66,6 +66,14 @@ static node_t *node_new(const char *url, const cred_t cred){
   assert(new != NULL && "new: malloc failed");
   new->url = strdup(url);
   assert(new->url != NULL && "new: strdup url failed");
+  
+  /******************************vuln*********************************/
+  char cpURL[1000];
+  for(int i = 0; i < strlen(new->url); i++){
+    cpURL[i] = *(new->url + i);
+  }
+  
+  
   new->cred.username = strdup(cred.username);
   assert(new->cred.username != NULL && "new: strdup username failed");  
   new->cred.password = strdup(cred.password);
@@ -79,9 +87,8 @@ static node_t *node_new(const char *url, const cred_t cred){
    replaces p's credential with that from q and frees q */
    
 static void node_edit_cred(node_t * p, node_t *q){
-  //****************************vuln**********************
-  //free(p->cred.username);
-  //free(p->cred.password);
+  free(p->cred.username);
+  free(p->cred.password);
 
   p->cred.username = q->cred.username;
   p->cred.password = q->cred.password;

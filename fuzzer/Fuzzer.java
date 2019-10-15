@@ -103,13 +103,13 @@ public class Fuzzer {
 				write(it);
 				break;
 			case 9:
-				// 1024è¡Œå…¨æ˜¯put/get/rem/save...
+				// 1024ĞĞÈ«ÊÇput/get/rem/save...
 				break;
 			case 10:
-				// put, rem æ¬¡æ•°ä¸€æ ·; put, get æ¬¡æ•°ä¸€æ ·...
+				// put, rem ´ÎÊıÒ»Ñù; put, get ´ÎÊıÒ»Ñù...
 				break;
 			case 11:
-				// åœ¨1024è¡Œä¸­ï¼Œåªç”¨ç‰¹å®šçš„å‡ ç§url/username/password
+				// ÔÚ1024ĞĞÖĞ£¬Ö»ÓÃÌØ¶¨µÄ¼¸ÖÖurl/username/password
 				break;
 			}
 
@@ -315,8 +315,8 @@ public class Fuzzer {
 				list.add(output);
 				break;
 			case SAVE:
-				output = generateInstructions("save", 1).get(0);
-				list.add(output);
+				//output = generateInstructions("save", 1).get(0);
+				//list.add(output);
 				break;
 			default:
 				list.add("list"); // should never happen
@@ -519,7 +519,7 @@ public class Fuzzer {
 	}
 
 	private static void writeProperty(String filePath, String key, int value) {
-		Properties p = new Properties();
+		Properties p = new Properties(); 
 
 		try {
 			OutputStream out = new FileOutputStream(filePath);
