@@ -25,7 +25,7 @@ public class Fuzzer {
 	// private static final String STATUS_FILE = "status.txt";
 	private static final String PROPERTIES = "../state.properties";
 
-	private static final int TOTAL_STRATEGY = 6;
+	private static final int TOTAL_STRATEGY = 23;
 	private static final int RANDOM_SEED = 10;
 	private static final int MAX_LINES = 1024;
 	private static final int MAX_INSTRUCTION_LENGTH = 1022;
@@ -59,6 +59,9 @@ public class Fuzzer {
 		String rem = "";
 		String save = "";
 
+		String invalidString = "";
+		int numOfArg = 0;
+
 		try {
 			out = new FileOutputStream(OUTPUT_FILE);
 			pw = new PrintWriter(out);
@@ -79,7 +82,9 @@ public class Fuzzer {
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
 				write(it);
-				// invalid:
+				// // invalid: get with zero input argument.
+				// invalidString = generateInvalidInstructions(0, 0, "get");
+				// pw.println(invalidString);
 				break;
 
 			case 1:
@@ -109,7 +114,7 @@ public class Fuzzer {
 				it = shuffleContainer.iterator();
 				write(it);
 
-				pw.println(insertLongInstructions()); // invalid: long instruction > 1022
+				// pw.println(insertLongInstructions()); // invalid: long instruction > 1022
 				break;
 			case 2:
 				// 0 line of instruction (empty file)
@@ -122,7 +127,15 @@ public class Fuzzer {
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
 				write(it);
-				pw.println("put a b c d"); // insert an invalid instructions to test 2
+
+				pw.println("put a b c d");
+
+				// // invalid: get with two input arguments. (maybe later randomnise and generate
+				// // two or more input arguments? )
+				// numOfArg = generateRandomInt(2, 1022);
+				// invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "get");
+				// // minus three chars of instruction, 2 whitespaec.
+				// pw.println(invalidString);
 				break; // invalid: insert 1025 lines of file
 			}
 
@@ -141,6 +154,13 @@ public class Fuzzer {
 			}
 		}
 
+	}
+
+	private static String generateInvalidInstructions(int seed, int intervals, String instruction) {
+		String randomString = generateRandomString(seed);
+		String output = instruction;
+		output = output + " " + randomSplit(randomString, intervals);
+		return output;
 	}
 
 	/**
@@ -287,7 +307,7 @@ public class Fuzzer {
 	 * @param seed how many instructions to produce
 	 * @return list of No.seed inputs
 	 */
-	private static ArrayList<String> insertRandomInstructions(int seed) {
+	public static ArrayList<String> insertRandomInstructions(int seed) {
 
 		int count = 0;
 		Instruction ins;
@@ -508,7 +528,9 @@ public class Fuzzer {
 
 		int leftLimit = 33; // letter '!'
 		int rightLimit = 126; // letter '~'
-
+		if (len == 0) {
+			return "";
+		}
 		Random random = new Random();
 		StringBuilder buffer = new StringBuilder(len);
 
