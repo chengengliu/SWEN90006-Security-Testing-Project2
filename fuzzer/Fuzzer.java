@@ -59,7 +59,7 @@ public class Fuzzer {
 		String rem = "";
 		String save = "";
 
-		String invalidString = "";
+		String invalidString = "", output ="";
 		int numOfArg = 0;
 
 		try {
@@ -128,11 +128,12 @@ public class Fuzzer {
 
 				// invalid: get with two input arguments. (maybe later randomnise and generate
 				// two or more input arguments? )
-				// numOfArg = generateRandomInt(2, 1022);
-				// invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "get");
-				invalidString = "get " + generateRandomString(200) + " " + generateRandomString(200);
-				// minus three chars of instruction, 2 whitespaec.
-				pw.println(invalidString);
+				numOfArg = generateRandomInt(2,8);
+				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, 9, "get");
+				// invalidString = "get " + generateRandomString(200) + " " + generateRandomString(200);
+        // minus three chars of instruction, 2 whitespaec.
+        output = invalidString.substring(0,MAX_INSTRUCTION_LENGTH);
+				pw.println(output);
 				break; 
 			case 4:
 				// only 1 line of instruction
@@ -243,7 +244,7 @@ public class Fuzzer {
 				numOfArg = generateRandomInt(2,8);
 				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, 9, "rem");
         // invalidString = "rem " + generateRandomString(200) + " " + generateRandomString(200);
-        String output = invalidString.substring(0,MAX_INSTRUCTION_LENGTH);
+        output = invalidString.substring(0,MAX_INSTRUCTION_LENGTH);
 				pw.println(output);
 				break;
 			case 17:
@@ -311,7 +312,7 @@ public class Fuzzer {
         // invalid: put with 2 or more arguments
 				numOfArg = generateRandomInt(4, 8);
         invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, 9, "put");
-        String output = invalidString.substring(0,MAX_INSTRUCTION_LENGTH);
+        output = invalidString.substring(0,MAX_INSTRUCTION_LENGTH);
 				pw.println(output);
 				break;
       case 22:
