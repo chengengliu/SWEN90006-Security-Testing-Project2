@@ -24,4 +24,5 @@ Proofs of Concept (PoCs that you should provide for each vulnerability):
 
 * poc/vuln-1.poc -- poc/vuln-5.poc
 
-Hello world from zzh
+## Bash script to make sure that each line is not exceeding 1022 chars. 
+awk -f count.awk tests/* | sort | uniq -c    
