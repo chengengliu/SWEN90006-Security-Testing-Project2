@@ -317,7 +317,7 @@ public class Fuzzer {
 				// ['put'].
 				// Length of the random instruction is equal to the length of splitting.
         int randomLen = generateRandomInt(9,11);
-        System.out.println("Case 22 Random Len is: "+randomLen);
+        // System.out.println("Case 22 Random Len is: "+randomLen);
 				String invalidInstruction = generateRandomString(randomLen);
 				String invalidArgs = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - randomLen, randomLen - 1,
 						invalidInstruction);
@@ -373,7 +373,7 @@ public class Fuzzer {
     // For now hardcode. 
     int splitNumber = generateRandomInt(4,upperLimit), tempSplit = 0, splitIndex = generateRandomInt(splitNumber, upperLimit);
     boolean isFirstSplit = true;
-    System.out.println("Split number is: "+splitNumber);
+    // System.out.println("Split number is: "+splitNumber);
     for (int i=0; i < splitNumber-1; i++){
       if(isFirstSplit){
         temp = input.substring(0,splitIndex);
@@ -386,7 +386,7 @@ public class Fuzzer {
       tempSplit = splitIndex;
       splitIndex = generateRandomInt(tempSplit, upperLimit);
       output += " "+input.substring(tempSplit, splitIndex);
-      System.out.println("Debugger: "+i+"  "+ tempSplit+"  "+splitIndex+"  "+output);
+      // System.out.println("Debugger: "+i+"  "+ tempSplit+"  "+splitIndex+"  "+output);
     }
     return output;
   }
