@@ -41,7 +41,15 @@ typedef struct node {
   struct node *left;
   struct node *right;
 } node_t;
-
+// Self-added comment
+/**
+ * The function is to search target string (url) in the data structure ( binary tree). Left -> Search target url is less than the node url. 
+ * Right -> Search target url is larger than the node url.
+ * strcmp(str1, str2) is a C standard library. It checks if two strings are equal. If equals, return 0. If the ASCII value of first unmatched character is less than second, return negative. Else return positive. 
+ * @param p
+ * @param url
+ * @return
+ */
 static const node_t * lookup(const node_t *p, const char *url){
   while (p != NULL){
     int ret = strcmp(url,p->url);
@@ -55,7 +63,11 @@ static const node_t * lookup(const node_t *p, const char *url){
   }
   return p; // not found
 }
-
+// Self-added comment
+/**
+ * Print out the data in the struct.
+ * @param p The node that matches the url.
+ */
 static void node_print(const node_t *p){
   printf("URL: %s, Username: %s, Password: %s\n",p->url,p->cred.username,p->cred.password);
 }
@@ -66,22 +78,6 @@ static node_t *node_new(const char *url, const cred_t cred){
   assert(new != NULL && "new: malloc failed");
   new->url = strdup(url);
   assert(new->url != NULL && "new: strdup url failed");
-
-  /**************************vuln**********************************/
-  int flag = 1;
-  char https[7] = "http://";
-  if(strlen(new->url) > 6){
-    for(int i = 0; i < 7; i++){
-      if(https[i] != *(new->url + i)){
-        flag = 0;
-      }
-    }
-    char a[1] = {0};
-    if(flag == 1){
-      a[2] = 0;
-    }
-  }
-  
   new->cred.username = strdup(cred.username);
   assert(new->cred.username != NULL && "new: strdup username failed");  
   new->cred.password = strdup(cred.password);
@@ -93,7 +89,6 @@ static node_t *node_new(const char *url, const cred_t cred){
 
 /* updates a node's credential in place: 
    replaces p's credential with that from q and frees q */
-   
 static void node_edit_cred(node_t * p, node_t *q){
   free(p->cred.username);
   free(p->cred.password);
@@ -418,7 +413,7 @@ static int execute(void){
     /* blank line */
     return 0;
   }
-    
+  // If this is the 'get' action, check if the input arguments are legal.
   if (strcmp(toks[0],INSTRUCTION_GET) == 0){
     if (numToks != 2){
       debug_printf("Expected 1 argument to %s instruction but instead found %u\n",INSTRUCTION_GET,numToks-1);
@@ -523,6 +518,9 @@ static int run(FILE *f){
       if (len > 0){
         if (inst[len-1] != '\n'){
           inst[len] = '\n';
+          /***************************************vuln************************************/
+          int test[1] = {0};
+          test[1] = 0;
           inst[len+1] = '\0';
         }
       }
