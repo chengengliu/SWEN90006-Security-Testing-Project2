@@ -44,7 +44,7 @@ public class Fuzzer {
 
 		ArrayList<String> shuffleContainer = new ArrayList<String>();
 
-		System.out.println(Instruction.getBNF());
+		// System.out.println(Instruction.getBNF());
 
 		Iterator<String> it = null;
 
@@ -240,10 +240,11 @@ public class Fuzzer {
 				it = shuffleContainer.iterator();
 				write(it);
 				// invalid: rem with two (or more) instructions.
-				// numOfArg = generateRandomInt(2, 1022);
-				// invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "rem");
-				invalidString = "rem " + generateRandomString(200) + " " + generateRandomString(200);
-				pw.println(invalidString);
+				numOfArg = generateRandomInt(2,8);
+				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, 9, "rem");
+        // invalidString = "rem " + generateRandomString(200) + " " + generateRandomString(200);
+        String output = invalidString.substring(0,MAX_INSTRUCTION_LENGTH);
+				pw.println(output);
 				break;
 			case 17:
 				// same URL, different username/password
@@ -284,8 +285,8 @@ public class Fuzzer {
 				write(it);
 				// invalid: put with 2 arguments.
 				// invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - 2, 1, "put");
-				invalidString = "put " + generateRandomString(200) + " " + generateRandomString(200);
-				pw.println(invalidString);
+				invalidString = "put " + generateRandomString(500) + " " + generateRandomString(500);
+        pw.println(invalidString);
 				break;
 			case 20:
 				// URL starts with http://
@@ -307,22 +308,22 @@ public class Fuzzer {
 				Collections.shuffle(shuffleContainer);
 				it = shuffleContainer.iterator();
 				write(it);
-				// invalid: put with 4(or more) arguments
+        // invalid: put with 2 or more arguments
 				numOfArg = generateRandomInt(4, 8);
-				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "put");
-				pw.println(invalidString);
+        invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, 9, "put");
+        String output = invalidString.substring(0,MAX_INSTRUCTION_LENGTH);
+				pw.println(output);
 				break;
-			case 22:
-				// invalid random instructions that are not valid. i.e, ['abc'] instead of
-				// ['put'].
-				// Length of the random instruction is equal to the length of splitting.
-        int randomLen = generateRandomInt(9,11);
-        // System.out.println("Case 22 Random Len is: "+randomLen);
-				String invalidInstruction = generateRandomString(randomLen);
-				String invalidArgs = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - randomLen, randomLen - 1,
-						invalidInstruction);
-				pw.println(invalidArgs);
-				break;
+      case 22:
+        // Totally invalid instructions and one char with one space. 
+        // for (int i =0; i<50; i++){
+        int randomLen = MAX_INSTRUCTION_LENGTH/2;
+        String invalidInstruction = generateRandomString(randomLen);
+        String invalidArgs = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - randomLen, randomLen - 1,invalidInstruction);
+        pw.println(invalidArgs);
+        // }
+        break;
+        
 			default:
 				break;
 			}
@@ -358,36 +359,32 @@ public class Fuzzer {
       case 6:
       case 7:
       case 8:
+        // Split into 1/0 argument. 
         output = output + " " + randomSplit(randomString, intervals);
         break;
+      case 9:
+        // Split into 2 arguments. 
+        output = output +" "+ randomSplit(randomString, 2);
+      case 10:
       default:
-        output = output + " " + splitMultipleStrings(randomString, splitUpper);
+        output = output + " " + splitMultipleStrings(splitUpper);
         break;
 
     }
 		return output;
   }
-  
-  private static String splitMultipleStrings(String input, int upperLimit){
-    String temp = "", output ="";
-    // For now hardcode. 
-    int splitNumber = generateRandomInt(4,upperLimit), tempSplit = 0, splitIndex = generateRandomInt(splitNumber, upperLimit);
-    boolean isFirstSplit = true;
-    // System.out.println("Split number is: "+splitNumber);
-    for (int i=0; i < splitNumber-1; i++){
-      if(isFirstSplit){
-        temp = input.substring(0,splitIndex);
-        output += temp;
-        isFirstSplit = false;
-      }
-      if((splitIndex == upperLimit-1)|| (splitIndex == upperLimit)){
-        return output;
-      }
-      tempSplit = splitIndex;
-      splitIndex = generateRandomInt(tempSplit, upperLimit);
-      output += " "+input.substring(tempSplit, splitIndex);
-      // System.out.println("Debugger: "+i+"  "+ tempSplit+"  "+splitIndex+"  "+output);
+  private static String splitOneSpace(String input){
+    String output ="";
+    for (int i=0; i < input.length(); i++){
+      if( i+1 == input.length()) return output+input.charAt(i);
+      output+=input.substring(i,i+1)+" ";
     }
+    return output;
+  }
+  
+  private static String splitMultipleStrings(int insLen){
+    String output ="";
+    output = splitOneSpace(generateRandomString(Math.floorDiv(MAX_INSTRUCTION_LENGTH-1-insLen,2)));
     return output;
   }
 
