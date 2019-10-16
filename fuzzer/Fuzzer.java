@@ -308,7 +308,7 @@ public class Fuzzer {
 				it = shuffleContainer.iterator();
 				write(it);
 				// invalid: put with 4(or more) arguments
-				numOfArg = generateRandomInt(4, 1022);
+				numOfArg = generateRandomInt(4, 8);
 				invalidString = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - 3 - numOfArg, numOfArg - 1, "put");
 				pw.println(invalidString);
 				break;
@@ -316,7 +316,8 @@ public class Fuzzer {
 				// invalid random instructions that are not valid. i.e, ['abc'] instead of
 				// ['put'].
 				// Length of the random instruction is equal to the length of splitting.
-				int randomLen = generateRandomInt(2, 1022);
+        int randomLen = generateRandomInt(9,11);
+        System.out.println("Case 22 Random Len is: "+randomLen);
 				String invalidInstruction = generateRandomString(randomLen);
 				String invalidArgs = generateInvalidInstructions(MAX_INSTRUCTION_LENGTH - randomLen, randomLen - 1,
 						invalidInstruction);
@@ -352,6 +353,11 @@ public class Fuzzer {
       case 1:
       case 2:
       case 3:
+      case 4:
+      case 5:
+      case 6:
+      case 7:
+      case 8:
         output = output + " " + randomSplit(randomString, intervals);
         break;
       default:
@@ -365,23 +371,22 @@ public class Fuzzer {
   private static String splitMultipleStrings(String input, int upperLimit){
     String temp = "", output ="";
     // For now hardcode. 
-    int splitNumber = generateRandomInt(4,upperLimit), tempSplit = 0, splitIndex = generateRandomInt(0, upperLimit);
+    int splitNumber = generateRandomInt(4,upperLimit), tempSplit = 0, splitIndex = generateRandomInt(splitNumber, upperLimit);
     boolean isFirstSplit = true;
-    // System.out.println("Split number is: "+splitNumber);
+    System.out.println("Split number is: "+splitNumber);
     for (int i=0; i < splitNumber-1; i++){
       if(isFirstSplit){
         temp = input.substring(0,splitIndex);
         output += temp;
         isFirstSplit = false;
-        
       }
-      if((splitIndex == MAX_INSTRUCTION_LENGTH-1) || splitIndex == MAX_INSTRUCTION_LENGTH){
+      if((splitIndex == upperLimit-1)|| (splitIndex == upperLimit)){
         return output;
       }
       tempSplit = splitIndex;
       splitIndex = generateRandomInt(tempSplit, upperLimit);
-      output += "   "+input.substring(tempSplit, splitIndex);
-      // System.out.println(i+"  "+ tempSplit+"  "+splitIndex+"  "+output);
+      output += " "+input.substring(tempSplit, splitIndex);
+      System.out.println("Debugger: "+i+"  "+ tempSplit+"  "+splitIndex+"  "+output);
     }
     return output;
   }
