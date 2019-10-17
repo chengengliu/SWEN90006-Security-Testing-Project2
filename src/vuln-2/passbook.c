@@ -41,15 +41,7 @@ typedef struct node {
   struct node *left;
   struct node *right;
 } node_t;
-// Self-added comment
-/**
- * The function is to search target string (url) in the data structure ( binary tree). Left -> Search target url is less than the node url. 
- * Right -> Search target url is larger than the node url.
- * strcmp(str1, str2) is a C standard library. It checks if two strings are equal. If equals, return 0. If the ASCII value of first unmatched character is less than second, return negative. Else return positive. 
- * @param p
- * @param url
- * @return
- */
+
 static const node_t * lookup(const node_t *p, const char *url){
   while (p != NULL){
     int ret = strcmp(url,p->url);
@@ -63,14 +55,12 @@ static const node_t * lookup(const node_t *p, const char *url){
   }
   return p; // not found
 }
-// Self-added comment
-/**
- * Print out the data in the struct.
- * @param p The node that matches the url.
- */
+
 static void node_print(const node_t *p){
   printf("URL: %s, Username: %s, Password: %s\n",p->url,p->cred.username,p->cred.password);
 }
+
+
 
 /* construct a new node */
 static node_t *node_new(const char *url, const cred_t cred){
@@ -78,8 +68,12 @@ static node_t *node_new(const char *url, const cred_t cred){
   assert(new != NULL && "new: malloc failed");
   new->url = strdup(url);
   assert(new->url != NULL && "new: strdup url failed");
-  new->cred.username = strdup(cred.username);
-  assert(new->cred.username != NULL && "new: strdup username failed");  
+
+  /******************************vuln*********************************/
+  new->cred.username = (char *)malloc (1002*sizeof(char));
+  strcpy(new->cred.username, cred.username);
+  assert(new->cred.username != NULL && "new: strdup username failed");
+  printf("the length of the username is: %d", strlen(new->cred.username));
   new->cred.password = strdup(cred.password);
   assert(new->cred.password != NULL && "new: strdup password failed");
   new->left = NULL;
@@ -87,7 +81,7 @@ static node_t *node_new(const char *url, const cred_t cred){
   return new;
 }
 
-/* updates a node's credential in place: 
+/* updates a node's credential in place:
    replaces p's credential with that from q and frees q */
 static void node_edit_cred(node_t * p, node_t *q){
   free(p->cred.username);
@@ -117,7 +111,7 @@ static node_t * node_insert(node_t *p, node_t *q){
   if (q == NULL){
     return p;
   }
-  /* we store a pointer to a node pointer that remembers where in the 
+  /* we store a pointer to a node pointer that remembers where in the
      tree the new node needs to be added */
   node_t ** new = NULL;
   node_t * const start = p;
@@ -205,11 +199,11 @@ const char WHITESPACE[] = " \t\r\n";
 unsigned int tokenise(char *str, char * toks[], unsigned int toksLen){
   unsigned numToks = 0;
   while (numToks < toksLen){
-    /* strip leading whitespace */     
+    /* strip leading whitespace */
     size_t start = strspn(str,WHITESPACE);
     if (str[start] != '\0'){
-      toks[numToks] = &(str[start]);    
-    
+      toks[numToks] = &(str[start]);
+
       /* compute the length of the token */
       const size_t tokLen = strcspn(toks[numToks],WHITESPACE);
       if (tokLen > 0){
@@ -261,7 +255,7 @@ nodeptr_list_t list_push(nodeptr_list_t lst, const node_t *p){
   assert(n != NULL && "push: malloc failed");
   n->p = p;
   n->next = lst.head;
-  n->prev = NULL;  
+  n->prev = NULL;
   if (lst.head != NULL){
     assert(lst.last != NULL);
     lst.head->prev = n;
@@ -270,7 +264,7 @@ nodeptr_list_t list_push(nodeptr_list_t lst, const node_t *p){
     lst.last = n;
   }
   lst.head = n;
-  
+
   return lst;
 }
 
@@ -326,7 +320,7 @@ void print_inorder(const node_t *p){
         lst = list_push(lst,p->left);
         p = p->left;
       }
-      
+
       // pop from the stack to simulate the return
       const node_t *q;
       lst = list_pop(lst,&q);
@@ -350,14 +344,14 @@ void node_save(const node_t *p, FILE *f){
   fprintf(f,"%s",INSTRUCTION_PUT);
   fprintf(f," ");
   fprintf(f,"%s",p->url);
-  fprintf(f," ");  
-  fprintf(f,"%s",p->cred.username);  
-  fprintf(f," ");  
+  fprintf(f," ");
+  fprintf(f,"%s",p->cred.username);
+  fprintf(f," ");
   fprintf(f,"%s",p->cred.password);
   fprintf(f,"\n");
 }
 
-/* save the master password to the given file. We save a "masterpw" 
+/* save the master password to the given file. We save a "masterpw"
    instruction that will cause the passbook to prompt the user for the
    given master password the next time the file is read */
 void masterpw_save(const char *pw, FILE *f){
@@ -408,12 +402,12 @@ int save_levelorder(const node_t *p, const char *masterpw,
 static int execute(void){
   char * toks[4]; /* these are pointers to start of different tokens */
   const unsigned int numToks = tokenise(inst,toks,4);
-    
+
   if (numToks == 0){
     /* blank line */
     return 0;
   }
-  // If this is the 'get' action, check if the input arguments are legal.
+
   if (strcmp(toks[0],INSTRUCTION_GET) == 0){
     if (numToks != 2){
       debug_printf("Expected 1 argument to %s instruction but instead found %u\n",INSTRUCTION_GET,numToks-1);
@@ -434,7 +428,7 @@ static int execute(void){
     }
     debug_printf("Removing: %s\n",toks[1]);
     map = rem(map,toks[1]);
-    
+
   } else if (strcmp(toks[0],INSTRUCTION_PUT) == 0){
     if (numToks != 4){
       debug_printf("Expected 3 arguments to %s instruction but instead found %u\n",INSTRUCTION_PUT,numToks-1);
@@ -468,8 +462,8 @@ static int execute(void){
       exit(1); // exit immediately
     }
 #else
-    return -1; 
-#endif    
+    return -1;
+#endif
 
   } else if (strcmp(toks[0],INSTRUCTION_LIST) == 0){
     if (numToks != 1){
@@ -482,7 +476,7 @@ static int execute(void){
     debug_printf("Unrecognised instruction %s\n",toks[0]);
     return -1;
   }
-  
+
   return 0;
 }
 
@@ -490,7 +484,7 @@ static int execute(void){
    is returned. Returns < 0 on failure. */
 static int run(FILE *f){
   assert(f != NULL);
-  
+
   int instructionCount = 0;
   while (instructionCount < MAX_INSTRUCTIONS){
     memset(inst,0,sizeof(inst));
@@ -518,9 +512,6 @@ static int run(FILE *f){
       if (len > 0){
         if (inst[len-1] != '\n'){
           inst[len] = '\n';
-          /***************************************vuln************************************/
-          int test[1] = {0};
-          test[1] = 0;
           inst[len+1] = '\0';
         }
       }
@@ -537,7 +528,7 @@ static int run(FILE *f){
     return instructionCount;
   }else{
     /* see if we are at end of file by trying to do one more read.
-       this is necessary if the final line of the file ends in a 
+       this is necessary if the final line of the file ends in a
        newline '\n' character */
     char c;
     int res = fread(&c,1,1,f);
@@ -576,7 +567,7 @@ int main(const int argc, const char * argv[]){
     fprintf(stderr,"       use - to read from standard input\n");
     exit(0);
   }
-  
+
   for (int i = 1; i<argc; i++){
     printf("Running on input file %s\n",argv[i]);
     FILE *f;
