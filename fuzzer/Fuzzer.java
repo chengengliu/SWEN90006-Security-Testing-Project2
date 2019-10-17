@@ -25,7 +25,7 @@ public class Fuzzer {
 	// private static final String STATUS_FILE = "status.txt";
 	private static final String PROPERTIES = "../state.properties";
 
-	private static final int TOTAL_STRATEGY = 31;
+	private static final int TOTAL_STRATEGY = 30;
 	private static final int RANDOM_SEED = 10;
 	private static final int MAX_LINES = 1024;
 	private static final int MAX_INSTRUCTION_LENGTH = 1022;
@@ -374,15 +374,15 @@ public class Fuzzer {
 				// blank space
 				pw.print(" ");
         break;
-      case 30: 
-        int upper = MAX_INSTRUCTION_LENGTH/2;
-        String invalidInstruction = generateRandomString(upper);
-        String randomString = generateRandomString(MAX_INSTRUCTION_LENGTH- upper);
-        int splitUpper = randomString.length();
+      // case 30: 
+      //   int upper = MAX_INSTRUCTION_LENGTH/2;
+      //   String invalidInstruction = generateRandomString(upper);
+      //   String randomString = generateRandomString(MAX_INSTRUCTION_LENGTH- upper);
+      //   int splitUpper = randomString.length();
 
-        String output= "", input = splitOneSpace(generateRandomString(Math.floorDiv(MAX_INSTRUCTION_LENGTH-1-splitUpper,2)));
-        output = invalidInstruction +" "+input;
-        pw.println(output);
+      //   String output= "", input = splitOneSpace(generateRandomString(Math.floorDiv(MAX_INSTRUCTION_LENGTH-1-splitUpper,2)));
+      //   output = invalidInstruction +" "+input;
+      //   pw.println(output);
 
 			default:
 				break;
